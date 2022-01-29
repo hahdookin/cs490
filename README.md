@@ -3,35 +3,24 @@
 
 ## :triangular_ruler: Architecture
 ```txt
+.------------.              .------------.                .------------.
+| Front-end  |   <---S--->   | Middleware |   <---S--->   |  Back-end  |
+'------------'              '------------'                '------------'
+    /|   POST (Fetch)                                           /|
+     |                                                           |  SQL
+     |/  JSON                                                    |/
+.------------.                                            .------------.
+|  Browser   |                                            |  Database  | 
+'------------'                                            '------------'
 
-.------------.
-|  Browser   | 
-'------------'
-    /|
-     |
-     |/
-.------------.
-| Front-end  |
-'------------'
-    /|
-     |
-     |/
-.------------.
-| Middleware |
-'------------'
-    /|
-     |
-     |/
-.------------.
-|  Back-end  |
-'------------'
-    /|
-     |
-     |/
-.------------.
-|  Browser   |
-'------------'
+========================================================================
+Legend:
+     
+<---S--->
+^1      ^2
 
+^1 - JSON
+^2 - POST (Curl)
 ```
 
 ## :microscope: Technologies
@@ -47,4 +36,6 @@
 | Release   | :x:
 
 
-## :: Resources
+## :books: Resources
+- [Debug your Server](https://ist.njit.edu/debug-your-code)
+- [AFS Permissions](https://ist.njit.edu/afs-permissions)
