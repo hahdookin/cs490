@@ -3,9 +3,9 @@
 
 ## :triangular_ruler: Architecture
 ```txt
-.------------.              .------------.                .------------.
+.------------.               .------------.               .------------.
 | Front-end  |   <---S--->   | Middleware |   <---S--->   |  Back-end  |
-'------------'              '------------'                '------------'
+'------------'               '------------'               '------------'
     /|   POST (Fetch)                                           /|
      |                                                           |  SQL
      |/  JSON                                                    |/
@@ -25,7 +25,7 @@ Legend:
 
 ## :microscope: Technologies
 - Languages: `php`, `css`, `html`, `javascript`
-- Packages: `curl`
+- Packages: `curl`, `php-curl`
 
 
 <!-- :heavy_check_mark: vs :x: vs :soon: -->
