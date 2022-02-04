@@ -2,8 +2,7 @@
 
 $ch = curl_init();
 
-// TODO: URL should point to middle man php server
-curl_setopt($ch, CURLOPT_URL, "https://web.njit.edu/~cap82/login2.php"); 
+curl_setopt($ch, CURLOPT_URL, "https://web.njit.edu/~aeo34/middleware/server.php"); 
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 
     http_build_query(
@@ -33,7 +32,7 @@ if (empty($response)) {
             echo "Welcome, teacher"."<br>";
             break;
         default:
-            echo "Database error"."<br>";
+            echo "Bad credentials, try again"."<br>";
             break;
     }
 }
