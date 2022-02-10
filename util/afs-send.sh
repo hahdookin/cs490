@@ -39,7 +39,7 @@ send() {
     zipfile=$2
 
     # Sends the zipfile to njit's afs
-    scp $zipfile $ucid@afsconnect1.njit.edu:/afs/cad/u/a/e/$ucid
+    scp $zipfile $ucid@afsconnect1.njit.edu:/afs/cad/u/g/m/$ucid
 }
 
 
