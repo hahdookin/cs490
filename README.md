@@ -31,8 +31,8 @@ Legend:
 <!-- :heavy_check_mark: vs :x: vs :soon: -->
 | Release Version | Completion
 | :-----:  | :-----:
-| Alpha     | :soon:
-| Beta      | :x:
+| Alpha     | :heavy_check_mark:
+| Beta      | :soon:
 | Release   | :x:
 
 
