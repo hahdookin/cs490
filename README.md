@@ -1,5 +1,7 @@
 # cs490
 
+## Demo
+- [Click Here for Demo](https://afsaccess4.njit.edu/~cap82/)
 
 ## :triangular_ruler: Architecture
 ```txt
