@@ -35,5 +35,5 @@ function cURL_POST(string $url, string $username, string $password) : string {
 $response = cURL_POST("https://web.njit.edu/~gmo9/back-end/backend.php", $_POST["username"], $_POST["password"]);
 
 // Printing Output of $arr
-echo json_encode($response);
+echo $response;
 ?>
