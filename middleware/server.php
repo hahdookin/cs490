@@ -27,8 +27,8 @@ function cURL_POST(string $url, array $arr) : string {
 }
 
 // sends $arr from php://input to curl backend
-$response = cURL_POST("https://web.njit.edu/~aeo34/server.php", $arr);
+$response = cURL_POST("https://web.njit.edu/~gmo9/back-end/backend.php", $_POST);
 
 // Printing Output of $arr
-echo json_encode($_POST);
+echo json_encode($response);
 ?>
