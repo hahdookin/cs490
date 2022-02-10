@@ -33,8 +33,10 @@ if (empty($response)) {
             break;
         default:
             echo "Bad credentials, try again<br>";
+            echo '<form action="../front-end/login.php" method="POST"> Username: <br><input type="text" name="username"><br> Password: <br><input type="text" name="password"><br> <input type="submit"> </form>';
             break;
     }
 }
+
 
 ?>
