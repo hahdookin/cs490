@@ -38,8 +38,8 @@ send() {
     ucid=$1 
     zipfile=$2
 
-    # Sends the zipfile to njit's afs
-    scp $zipfile $ucid@afsconnect1.njit.edu:/afs/cad/u/g/m/$ucid
+    # Sends the zipfile to $ucid njit's afs (the ${ucid:0:1} -> specifies where in afs the ucid lies)
+    scp $zipfile $ucid@afsconnect1.njit.edu:/afs/cad/u/${ucid:0:1}/${ucid:1:1}/$ucid
 }
 
 
