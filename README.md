@@ -1,4 +1,5 @@
 # cs490
+Distributed 3-layer architecture designed to be a thorough autograder.
 
 ## Demo
 - [Click Here for Demo](https://afsaccess4.njit.edu/~cap82/)
