@@ -9,6 +9,10 @@ import (
 	"strconv"
 )
 
+/*
+Send POST request as `x-www-form-urlencoded`
+*/
+
 const (
 	PORT    = 8087
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
@@ -43,14 +47,13 @@ func sendPostJSON(endpoint string, cd UP) string {
 	return string(body)
 }
 
+// handler -> server logic
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Yes")
 	switch r.Method {
 	case "POST":
-		check(r.ParseForm())
-		// if err := r.ParseForm(); err != nil {
-		// log.Fatal(err.Error())
-		// }
+		if err := r.ParseForm(); err != nil {
+			log.Fatal(err.Error())
+		}
 
 		user := r.FormValue("username")
 		passwd := r.FormValue("password")
@@ -59,8 +62,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			username: user,
 			password: passwd,
 		}
+		// fmt.Println(clientData)
+		// fmt.Println(r.PostForm)
 
-		r := sendPostJSON(BACKEND, clientData)
+		// log.Printf("POST: user: [%s]  passwd: [%s]", user, passwd)
+
+		resp := sendPostJSON(BACKEND, clientData)
+		fmt.Fprintf(w, resp)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
@@ -71,42 +79,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := strconv.Itoa(PORT)
 
-	r := sendPostJSON(BACKEND, UP{
-		username: "jane",
-		password: "apple",
-	})
-
-	fmt.Println(r)
-
-	// reqBody, err := json.Marshal(map[string]string{
-	// 	"username": "jane",
-	// 	"password": "apple",
-	// })
-	// check(err)
-	// cd := UP{
-	// 	username: "jane",
-	// 	password: "apple",
-	// }
-
-	// data := url.Values{
-	// 	"username": {cd.username},
-	// 	"password": {cd.password},
-	// }
-
-	// resp, err := http.PostForm("https://web.njit.edu/~gmo9/back-end/backend.php", data)
-	// check(err)
-
-	// defer resp.Body.Close()
-
-	// body, err := ioutil.ReadAll(resp.Body)
-	// check(err)
-
-	// log.Println(string(body))
-
-	// fmt.Println(r)
-
 	// handler
 	http.HandleFunc("/", handler)
+
+	// Prints where it is on localhost
+	fmt.Printf("http://localhost:%s\n", port)
 
 	// start Server at port
 	err := http.ListenAndServe(":"+port, nil)
