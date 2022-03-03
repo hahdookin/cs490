@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	run "github.com/hahdookin/cs490/middleware/pyrun"
 )
 
 /*
@@ -68,7 +70,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// log.Printf("POST: user: [%s]  passwd: [%s]", user, passwd)
 
 		resp := sendPostJSON(BACKEND, clientData)
-		fmt.Fprintf(w, resp)
+		fmt.Fprintf(w, "%v", resp)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
@@ -78,6 +80,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := strconv.Itoa(PORT)
+
+	run.RunCode("pyHello.py")
 
 	// handler
 	http.HandleFunc("/", handler)
