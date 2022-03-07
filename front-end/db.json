@@ -1,0 +1,277 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "title": "DoubleIt",
+      "desc": "Given a number, return double of it.",
+      "difficulty": "easy",
+      "functionname": "DoubleIt",
+      "parameters": [
+        "x"
+      ],
+      "tests": [
+        {
+          "arguments": [
+            "1"
+          ],
+          "output": "2"
+        },
+        {
+          "arguments": [
+            "5"
+          ],
+          "output": "10"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Buzzin' and Fizzin'",
+      "desc": "Run the FizzBuzz program.",
+      "difficulty": "medium",
+      "functionname": "FizzBuzz",
+      "parameters": [],
+      "tests": [
+        {
+          "arguments": [],
+          "output": "Buzz"
+        },
+        {
+          "arguments": [],
+          "output": "Fizz"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Add two Numbers",
+      "desc": "Given two numbers, return the sum of them.",
+      "difficulty": "easy",
+      "functionname": "AddEm",
+      "parameters": [
+        "x",
+        "y"
+      ],
+      "tests": [
+        {
+          "arguments": [
+            "1",
+            "2"
+          ],
+          "output": "3"
+        },
+        {
+          "arguments": [
+            "5",
+            "300"
+          ],
+          "output": "305"
+        }
+      ]
+    },
+    {
+      "title": "Array Problem",
+      "desc": "Given an array, return the sum of all values",
+      "difficulty": "medium",
+      "functionname": "arraySum",
+      "parameters": [
+        "arr"
+      ],
+      "tests": [
+        {
+          "arguments": [
+            "[1,2,3]"
+          ],
+          "output": "6"
+        },
+        {
+          "arguments": [
+            "[1,1]"
+          ],
+          "output": "2"
+        }
+      ],
+      "id": 4
+    },
+    {
+      "title": "Is number 5 or 25?",
+      "desc": "Given a number, return if its 5 or 25",
+      "difficulty": "easy",
+      "functionname": "is5or25",
+      "parameters": [
+        "x"
+      ],
+      "tests": [
+        {
+          "arguments": [
+            "5"
+          ],
+          "output": "True"
+        },
+        {
+          "arguments": [
+            "25"
+          ],
+          "output": "True"
+        },
+        {
+          "arguments": [
+            "3"
+          ],
+          "output": "False"
+        }
+      ],
+      "id": 5
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "jane",
+      "password": "apple",
+      "type": "teacher"
+    },
+    {
+      "id": 2,
+      "username": "john",
+      "password": "ban",
+      "type": "student"
+    }
+  ],
+  "exams": [
+    {
+      "name": "Exam1",
+      "questions": [
+        {
+          "id": 1,
+          "points": 5
+        }
+      ],
+      "id": 1
+    },
+    {
+      "name": "Exam2",
+      "questions": [
+        {
+          "id": 1,
+          "points": 20
+        },
+        {
+          "id": 2,
+          "points": 50
+        }
+      ],
+      "id": 2
+    },
+    {
+      "name": "sdfsd",
+      "questions": [
+        {
+          "id": 1,
+          "points": 4
+        },
+        {
+          "id": 2,
+          "points": 4
+        }
+      ],
+      "id": 3
+    }
+  ],
+  "students": [
+    {
+      "id": 1,
+      "userID": 2,
+      "username": "john",
+      "exams": {
+        "incompleted": [
+          2
+        ],
+        "completed": [
+          1
+        ]
+      }
+    }
+  ],
+  "studentexams": [
+    {
+      "id": 1,
+      "userid": 2,
+      "username": "john",
+      "incompleted": [
+        2
+      ],
+      "completed": [
+        1
+      ]
+    }
+  ],
+  "teachers": [
+    {
+      "id": 1,
+      "userid": 1,
+      "username": "jane"
+    }
+  ],
+  "teacherexams": [
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 1,
+      "id": 1
+    },
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 2,
+      "id": 2
+    },
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 1,
+      "id": 3
+    },
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 3,
+      "id": 4
+    },
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 3,
+      "id": 5
+    },
+    {
+      "assigner": "jane",
+      "assignee": "john",
+      "examid": 3,
+      "id": 6
+    }
+  ],
+  "studentexamresult": [
+    {
+      "id": 1,
+      "examid": 99,
+      "userid": 2,
+      "autograded": false,
+      "points": 100,
+    }
+  ],
+  "studentexamanswers": [
+    {
+      "id": 1,
+      "questionid": 1,
+      "studentexamresultid": 1,
+      "code": "return 6 + 2"
+    },
+    {
+      "id": 2,
+      "questionid": 2,
+      "studentexamresultid": 1,
+      "code": "return 'sdfsdf'"
+    }
+  ]
+}
