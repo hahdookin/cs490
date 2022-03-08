@@ -18,7 +18,7 @@ const routes = [
         component: Home,
     },
     {
-        path: '/teacher/:username',
+        path: '/teacher/:userid',
         name: 'TeacherDashboard',
         component: TeacherDashboard,
         children: [
@@ -41,12 +41,12 @@ const routes = [
         ]
     },
     {
-        path: '/student/:username',
+        path: '/student/:userid',
         name: 'StudentDashboard',
         component: StudentDashboard,
         children: [
             {
-                path: 'exam/:id',
+                path: 'exam/:examid',
                 component: Exam
             },
             {

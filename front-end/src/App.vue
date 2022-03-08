@@ -25,6 +25,7 @@ export default {
             userInfo: {
                 username: '',
                 type: '',
+                userid: -1,
             },
             examActive: false
         }; 
@@ -43,11 +44,12 @@ export default {
     methods: {
         handleUserLogin(info) {
             this.userInfo = info;
-            this.$router.push(`/${this.userInfo.type}/${this.userInfo.username}`);
+            this.$router.push(`/${this.userInfo.type}/${this.userInfo.userid}`);
         },
         handleUserLogout() {
             this.userInfo.username = '';
             this.userInfo.type = '';
+            this.userInfo.userid = -1;
             this.$router.push('/');
         },
     },

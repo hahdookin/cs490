@@ -19,7 +19,7 @@
                 <h3 class="column-title">INCOMPLETED</h3>
             </div>
             <div v-for="exam in incompletedExams" class="exam-item">
-                <p><router-link @click="emitExamStarted" :to="{ path: `/student/${$route.params.username}/exam/${exam.id}`}">{{ exam.name }}</router-link></p>
+                <p><router-link @click="emitExamStarted" :to="{ path: `/student/${$route.params.userid}/exam/${exam.id}`}">{{ exam.name }}</router-link></p>
             </div>
         </div>
         
@@ -30,17 +30,17 @@
 <script>
 export default {
     name: 'ExamList',
-    inject: ['fetchStudent', 'fetchExam'],
+    inject: ['fetchExam', 'fetchStudentExams'],
     emits: ['student-exam-active'],
     data() {
         return {
             student: {
                 username: '',
-                exams: {
-                    completed: [],
-                    incompleted: [],
-                }
             },
+            studentExams: {
+                incompleted: [],
+                completed: []
+            }
         };
     },
     methods: {
@@ -51,21 +51,22 @@ export default {
     },
     computed: {
         completedExams() {
-            //return this.exams.completed;
-            return this.student.exams.completed;
+            return this.studentExams.completed;
         },
         incompletedExams() {
-            return this.student.exams.incompleted;
+            return this.studentExams.incompleted;
         }
     },
     async created() {
+        const studentUserID = this.$route.params.userid;
+
         // Fetch student information
-        const data = await this.fetchStudent('john');
-        this.student = data;
+        const studentExams = await this.fetchStudentExams(studentUserID);
+        this.studentExams = studentExams;
 
         // Remember the exam IDs
-        const completed = data.exams.completed;
-        const incompleted = data.exams.incompleted;
+        const completed = studentExams.completed;
+        const incompleted = studentExams.incompleted;
         const completedInfo = [];
         const incompletedInfo = [];
         for (const id of completed) {
@@ -76,8 +77,8 @@ export default {
             const examInfo = await this.fetchExam(id);
             incompletedInfo.push(examInfo);
         }
-        this.student.exams.completed = completedInfo;
-        this.student.exams.incompleted = incompletedInfo;
+        this.studentExams.completed = completedInfo;
+        this.studentExams.incompleted = incompletedInfo;
     }
 }
 </script>

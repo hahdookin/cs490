@@ -1,7 +1,7 @@
 <template>
     <h1>Student Dashboard</h1>
     <ul>
-    <li><router-link :to="{ path: `/student/${$route.params.username}/examlist` }">View Exams</router-link></li>
+    <li><router-link :to="{ path: `/student/${$route.params.userid}/examlist` }">View Exams</router-link></li>
     </ul>
     <router-view></router-view>
 </template>

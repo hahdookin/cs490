@@ -4,21 +4,27 @@ export default {
 
         const database = 'http://localhost:5000';
 
-        // Fetch single student table
-        const fetchStudent = async function(user) {
-            const res = await fetch(`${database}/students?username=${user}`);
+        // Fetch single user table
+        const fetchUser = async function(userID) {
+            const res = await fetch(`${database}/users/${userID}`);
             const data = await res.json();
-            return data[0]; // return first result
-        };
-        // Fetch single exam
-        const fetchExam = async function (id) {
-            const res = await fetch(`${database}/exams?id=${id}`);
+            return data;
+        }
+        // Fetch single student table by userID
+        // const fetchStudent = async function(userID) {
+        //     const res = await fetch(`${database}/students?userid=${userID}`);
+        //     const data = await res.json();
+        //     return data[0]; // return first result
+        // };
+        // Fetch single exam table by examID
+        const fetchExam = async function(examID) {
+            const res = await fetch(`${database}/exams/${examID}`);
             const data = await res.json();
             if (data.length === 0) {
                 console.error(`Couldn't fetch exam data: ID ${id}`);
                 return;
             }
-            return data[0]; // return first result
+            return data;
         }
         // Fetch all exams
         const fetchExams = async function() {
@@ -27,22 +33,22 @@ export default {
             return data;
         };
         // Fetch single teacher table
-        const fetchTeacher = async function(user) {
-            const res = await fetch(`${database}/teachers?username=${user}`);
-            const data = await res.json();
-            return data[0]; // return first result
-        };
+        // const fetchTeacher = async function(userID) {
+        //     const res = await fetch(`${database}/teachers?userid=${userID}`);
+        //     const data = await res.json();
+        //     return data[0]; // return first result
+        // };
         // Fetch all teacher exams (examID, assignee, assigner)
-        const fetchTeacherExams = async function(user) {
-            const res = await fetch(`${database}/teacherexams?assigner=${user}`);
+        const fetchTeacherExams = async function(userID) {
+            const res = await fetch(`${database}/teacherexams?assignerid=${userID}`);
             const data = await res.json();
             return data;
         };
         // Fetch all student exams (completed (IDs), incompleted (IDs))
-        const fetchStudentExams = async function(user) {
-            const res = await fetch(`${database}/studentexams?username=${user}`);
+        const fetchStudentExams = async function(userID) {
+            const res = await fetch(`${database}/studentexams?userid=${userID}`);
             const data = await res.json();
-            return data[0];
+            return data[0]; // just want the one result
         };
         // Fetch all question tables from question IDs in exam questions
         const fetchQuestionsFromExam = async function(examID) {
@@ -63,19 +69,30 @@ export default {
         };
         // Fetch single question
         const fetchQuestion = async function(questionID) {
-            const res = await fetch(`${database}/questions?id=${questionID}`);
+            const res = await fetch(`${database}/questions/${questionID}`);
             const data = await res.json();
-            return data[0]; // return first result
+            return data;
         };
         // Fetch single user login credentials
         const fetchLoginCredentials = async function(user, pass) {
             const res = await fetch(`${database}/users?username=${user}&password=${pass}`);
             const data = await res.json();
-            return data;
+            return data[0]; // just want the one result
         };
+        // Fetch userID by user name
+        const fetchUserID = async function(user) {
+            const res = await fetch(`${database}/users?username=${user}`);
+            const data = await res.json();
+            return data[0].id; // just want the one result
+        }
+        const fetchStudentExamResult = async function(userID, examID) {
+            const res = await fetch(`${database}/studentexamresult?userid=${userID}&examid=${examID}`);
+            const data = await res.json();
+            return data[0]; // just want the one result
+        }
 
-        app.provide('fetchStudent', fetchStudent);
-        app.provide('fetchTeacher', fetchTeacher);
+        // app.provide('fetchStudent', fetchStudent);
+        // app.provide('fetchTeacher', fetchTeacher);
 
         app.provide('fetchExam', fetchExam);
         app.provide('fetchExams', fetchExams);
@@ -83,10 +100,14 @@ export default {
         app.provide('fetchStudentExams', fetchStudentExams);
         app.provide('fetchTeacherExams', fetchTeacherExams);
 
+        app.provide('fetchStudentExamResult', fetchStudentExamResult);
+
         app.provide('fetchQuestion', fetchQuestion);
         app.provide('fetchQuestions', fetchQuestions);
         app.provide('fetchQuestionsFromExam', fetchQuestionsFromExam);
 
+        app.provide('fetchUser', fetchUser);
+        app.provide('fetchUserID', fetchUserID);
         app.provide('fetchLoginCredentials', fetchLoginCredentials);
     }
 }

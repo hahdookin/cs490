@@ -44,8 +44,8 @@ export default {
             this.errorMessage = '';
             this.$emit('user-logged-in', {
                 username: this.username,
-                type: credientials[0].type,
-                //type: 'teacher'
+                type: credientials.type,
+                userid: credientials.id,
             });
         },
         onLogout() {
