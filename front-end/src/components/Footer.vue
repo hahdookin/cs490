@@ -26,9 +26,8 @@ export default {
             return this.userInfo.type.toLowerCase() === 'student';
         },
         userDashboard() {
-            const { username, type } = this.userInfo;
-            return '/' + type + '/' + username;
-            //return '/' + type;
+            const { userid, type } = this.userInfo;
+            return '/' + type + '/' + userid;
         }
     }
 }

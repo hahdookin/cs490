@@ -19,7 +19,7 @@
 <script>
 export default {
     name: 'AssignExam',
-    inject: ['fetchExams', 'fetchTeacher', 'fetchStudentExams'],
+    inject: ['fetchUserID', 'fetchExams', 'fetchStudentExams'],
     data() {
         return {
             errorMessage: '',
@@ -48,15 +48,15 @@ export default {
             // Check if username is a student
             // ... TODO
 
-            const teacherUser = this.$route.params.username;
+            const teacherUserID = this.$route.params.userid;
+            const studentUserID = await this.fetchUserID(this.username);
 
             // Post to teacherexams
             const payload = {
-                assigner: teacherUser,
-                assignee: this.username,
+                assignerid: +teacherUserID,
+                assigneeid: +studentUserID,
                 examid: this.examID
-            }
-            console.log(payload);
+            };
             const res = await fetch('http://localhost:5000/teacherexams', {
                 method: 'post',
                 headers: {
@@ -66,21 +66,22 @@ export default {
             });
 
             // Add to students incompleted exams
-            const studentExams = await this.fetchStudentExams(this.username);
+            const studentExams = await this.fetchStudentExams(studentUserID);
             studentExams.incompleted.push(this.examID);
-            console.log(studentExams);
-            const res2 = await fetch('http://localhost:5000/teacherexams', {
-                method: 'post',
+            const res2 = await fetch(`http://localhost:5000/studentexams/${studentExams.id}`, {
+                method: 'put',
                 headers: {
                     'Content-type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(studentExams)
             });
 
             // Get exam name
-            const name = this.exams.find(e => e.id === this.examID).name;
+            const name = this.exams.find(e => e.id === this.examID)?.name;
             // Assign examID to username
             this.setSuccess(`Successfully assigned '${name}' to ${this.username}`);
+            this.username = '';
+            this.examID = '';
         }
     },
     async created() {

@@ -14,21 +14,21 @@ export default {
     name: 'TeacherDashboard',
     data() {
         return {
-            username: this.$route.params.username
+            userid: this.$route.params.userid
         };
     },
     computed: {
         examCreatorPath() {
-            return `/teacher/${this.username}/examcreator`;
+            return `/teacher/${this.userid}/examcreator`;
         },
         questionCreatorPath() {
-            return `/teacher/${this.username}/questioncreator`;
+            return `/teacher/${this.userid}/questioncreator`;
         },
         assignExamPath() {
-            return `/teacher/${this.username}/assignexam`;
+            return `/teacher/${this.userid}/assignexam`;
         },
         viewExamsPath() {
-            return `/teacher/${this.username}/viewexams`;
+            return `/teacher/${this.userid}/viewexams`;
         },
     },
 }
