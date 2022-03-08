@@ -6,6 +6,11 @@ import (
 	"os/exec"
 )
 
+type Ret struct {
+	questionID string
+	score      string
+}
+
 func Hello() {
 	fmt.Println("Hello!")
 }
