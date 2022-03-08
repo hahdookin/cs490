@@ -47,8 +47,8 @@ func sendPostJSON(endpoint string, cd UP) string {
 	return string(body)
 }
 
-// handler -> server logic
-func handler(w http.ResponseWriter, r *http.Request) {
+// login -> server logic
+func login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		if err := r.ParseForm(); err != nil {
@@ -68,19 +68,37 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// log.Printf("POST: user: [%s]  passwd: [%s]", user, passwd)
 
 		resp := sendPostJSON(BACKEND, clientData)
-		fmt.Fprintf(w, resp)
+		fmt.Fprintf(w, "%v", resp)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
 	}
+}
 
+func autograde(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		if err := r.ParseForm(); err != nil {
+			log.Fatal(err.Error())
+		}
+
+		qid := r.FormValue("qid")
+		code := r.FormValue("code")
+
+		fmt.Fprintf(w, "{qid:%s,code:%s}", qid, code)
+		// form values
+
+	default:
+		fmt.Fprintf(w, "POST plz")
+	}
 }
 
 func main() {
 	port := strconv.Itoa(PORT)
 
 	// handler
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", login)
+	http.HandleFunc("/autograde", autograde)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
