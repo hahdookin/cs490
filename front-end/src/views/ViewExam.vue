@@ -5,9 +5,12 @@
         <p>Exam: {{ exam.exam?.name }}</p>
         <div>
             <p>Status: {{ exam.completed ? 'Completed' : 'Not yet completed' }}</p>
-            <button @click="postAutoGrade" 
-                    v-if="exam.completed"
-                    :disabled="exam.autograded">AutoGrade</button>
+            <div v-if="exam.completed">
+                <button @click="postAutoGrade(exam)" 
+                        :disabled="exam.autograded">AutoGrade</button>
+                <button @click="reviewAndSubmitExam(exam.studentExamResult)"
+                        :disabled="!exam.autograded">Review and Submit</button>
+            </div>
         </div>
     </div>
 </template>
@@ -16,6 +19,7 @@
 export default {
     name: 'ViewExams',
     inject: [
+        'serialize',
         'fetchUser',
         'fetchTeacherExams', 
         'fetchExam',
@@ -44,10 +48,12 @@ export default {
             studentCompleted = studentCompleted.completed;
             teacherExam.completed = studentCompleted.indexOf(teacherExam.examid) !== -1;
 
+            // If completed, query the studentExamResult
             if (teacherExam.completed) {
                 // Find out if the exam has been autograded
                 let studentExamResult = await this.fetchStudentExamResult(studentUserID, teacherExam.examid);
                 teacherExam.autograded = studentExamResult.autograded;
+                teacherExam.studentExamResult = studentExamResult;
             }
 
             // Attach exam information to those assigned exams (name, questions)
@@ -55,10 +61,30 @@ export default {
         }
     },
     methods: {
-        postAutoGrade() {
-            // make post with { qID and the code } to middle
+        async postAutoGrade(exam) {
+            console.log("Sending to autograder", exam);
 
-            // wait for { }
+            /* const res = await fetch('http://localhost:5000/') */
+            // make post with { qID and the code } to middle
+            exam.autograded = true;
+        },
+        reviewAndSubmitExam(studentExamResult) {
+            const teacherUserID = this.$route.params.userid;
+            this.$router.push(`/teacher/${teacherUserID}/reviewexam/${studentExamResult.id}`);
+            /* const payload = { */
+            /*     qid: 2, */
+            /*     code: 'def my_fn(x, y):\n\treturn x + y' */
+            /* }; */
+            /* const res = await fetch('http://ec2-3-136-155-192.us-east-2.compute.amazonaws.com/autograde', { */
+            /*     method: 'post', */
+            /*     headers: { */
+            /*         'Content-type': 'application/x-www-form-urlencoded', */
+            /*     }, */
+            /*     body: serialize(payload) */
+            /* }); */
+            /* const resp = await res.json(); */
+            /* console.log(resp); */
+
         }
     }
 }

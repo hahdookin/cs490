@@ -26,19 +26,25 @@
     },
     {
       "id": 2,
-      "title": "Buzzin' and Fizzin'",
-      "desc": "Run the FizzBuzz program.",
+      "title": "Make Uppercase",
+      "desc": "Given a string, convert it to uppercase.",
       "difficulty": "medium",
-      "functionname": "FizzBuzz",
-      "parameters": [],
+      "functionname": "ToUpper",
+      "parameters": [
+        "s"
+      ],
       "tests": [
         {
-          "arguments": [],
-          "output": "Buzz"
+          "arguments": [
+            "apple"
+          ],
+          "output": "APPLE"
         },
         {
-          "arguments": [],
-          "output": "Fizz"
+          "arguments": [
+            "GoodMorning"
+          ],
+          "output": "GOODMORNING"
         }
       ]
     },
@@ -108,18 +114,33 @@
         }
       ],
       "id": 2
+    },
+    {
+      "name": "Final Exam",
+      "questions": [
+        {
+          "id": 1,
+          "points": 15
+        },
+        {
+          "id": 2,
+          "points": 20
+        },
+        {
+          "id": 3,
+          "points": 40
+        }
+      ],
+      "id": 3
     }
   ],
   "studentexams": [
     {
       "id": 1,
       "userid": 2,
-      "username": "john",
-      "incompleted": [
-        2
-      ],
+      "incompleted": [],
       "completed": [
-        1
+        3
       ]
     }
   ],
@@ -127,22 +148,17 @@
     {
       "assignerid": 1,
       "assigneeid": 2,
-      "examid": 1,
+      "examid": 3,
       "id": 1
-    },
-    {
-      "assignerid": 1,
-      "assigneeid": 2,
-      "examid": 2,
-      "id": 2
     }
   ],
   "studentexamresult": [
     {
-      "examid": 1,
+      "examid": 3,
       "userid": 2,
       "autograded": false,
-      "points": 15,
+      "reviewed": false,
+      "points": 75,
       "id": 1
     }
   ],
@@ -150,14 +166,59 @@
     {
       "questionid": 1,
       "studentexamresultid": 1,
-      "code": "def DoubleIt(x):\n\treturn x * 2",
+      "code": "def DoubleIt(x):\n\treturn x + 2",
+      "tests": [
+        {
+          "pass": true,
+          "points": 7,
+          "studentoutput": 14
+        },
+        {
+          "pass": true,
+          "points": 8,
+          "studentoutput": 5
+        }
+      ],
+      "comment": "",
       "id": 1
+    },
+    {
+      "questionid": 2,
+      "studentexamresultid": 1,
+      "code": "def ToUpper(s):\n\treturn s.toUpper()",
+      "tests": [
+        {
+          "pass": false,
+          "points": 10,
+          "studentoutput": 9
+        },
+        {
+          "pass": true,
+          "points": 10,
+          "studentoutput": 12
+        }
+      ],
+      "comment": "",
+      "id": 2
     },
     {
       "questionid": 3,
       "studentexamresultid": 1,
-      "code": "def AddEm(x,y):\n\treturn x + y",
-      "id": 2
+      "code": "def AddEm(x,y):\n\treturn x - y",
+      "tests": [
+        {
+          "pass": true,
+          "points": 20,
+          "studentoutput": 6
+        },
+        {
+          "pass": false,
+          "points": 20,
+          "studentoutput": 14
+        }
+      ],
+      "comment": "",
+      "id": 3
     }
   ]
 }
