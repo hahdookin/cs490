@@ -1,6 +1,7 @@
 <template>
     <h3>Assign Exams</h3>
     <form @submit.prevent="onSubmit">
+        <label>User: </label>
         <input v-model="username" type="text" required>
         <div>
             <select v-model="examID" name="exam">

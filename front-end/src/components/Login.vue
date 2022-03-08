@@ -2,7 +2,7 @@
     <div v-if="userInfo.username === ''">
         <form @submit="onSubmit" method="post">
             Username: <input v-model="username" type="text" name="username" required><br>
-            Password: <input v-model="password" type="text" name="password" required><br>
+            Password: <input v-model="password" type="password" name="password" required><br>
             <input type="submit" value="Login">
             <p style="color:red">{{ errorMessage }}</p>
         </form>
@@ -36,7 +36,7 @@ export default {
             const credientials = await this.fetchLoginCredentials(this.username, this.password);
 
             // On bad credientials
-            if (credientials.length === 0) {
+            if (!credientials) {
                 this.errorMessage = 'Incorrect username or password';
                 return;
             }

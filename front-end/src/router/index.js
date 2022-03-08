@@ -10,6 +10,7 @@ import AssignExam from '../views/AssignExam';
 import ExamCreator from '../views/ExamCreator';
 import QuestionCreator from '../views/QuestionCreator';
 import ViewExam from '../views/ViewExam';
+import ReviewExam from '../views/ReviewExam';
 
 const routes = [
     {
@@ -36,7 +37,11 @@ const routes = [
             },
             {
                 path: 'viewexams',
-                component: ViewExam
+                component: ViewExam,
+            },
+            {
+                path: 'reviewexam/:studentexamresultid',
+                component: ReviewExam
             }
         ]
     },
