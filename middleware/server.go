@@ -4,72 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 
-	L "github.com/hahdookin/cs490/middleware/pyrun"
+	L "github.com/AOrps/cs490/middleware/pyrun"
 )
-
-/*
-Send POST request as `x-www-form-urlencoded`
-*/
 
 const (
 	PORT    = 8087
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
 
-type UP struct {
-	username string `json:"username"`
-	password string `json:"password"`
-}
-
-type Grade struct {
-	qid  string `json:"qid"`
-	code string `json:"code"`
-}
-
-// sendPOSTJSON -> sends a POST encoded with JSON
-func sendPostJSON(endpoint string, cd UP) string {
-	data := url.Values{
-		"username": {cd.username},
-		"password": {cd.password},
-	}
-
-	resp, err := http.PostForm(endpoint, data)
-	L.Check(err)
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	L.Check(err)
-
-	return string(body)
-}
-
 // login -> server logic
 func login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		if err := r.ParseForm(); err != nil {
-			log.Fatal(err.Error())
-		}
+		rBody, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		L.Check(err)
+		var clientData L.UP
 
-		user := r.FormValue("username")
-		passwd := r.FormValue("password")
+		err = json.Unmarshal(rBody, &clientData)
+		L.Check(err)
 
-		clientData := UP{
-			username: user,
-			password: passwd,
-		}
-		// fmt.Println(clientData)
-		// fmt.Println(r.PostForm)
-
-		// log.Printf("POST: user: [%s]  passwd: [%s]", user, passwd)
-
-		resp := sendPostJSON(BACKEND, clientData)
+		resp := L.SendPostJSON(BACKEND, clientData)
 		fmt.Fprintf(w, "%v", resp)
 
 	default:
@@ -80,32 +38,21 @@ func login(w http.ResponseWriter, r *http.Request) {
 func autograde(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		if err := r.ParseForm(); err != nil {
-			log.Fatal(err.Error())
-		}
+		rBody, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		L.Check(err)
+		var res []L.Grade
 
-		var res Grade
-
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err := decoder.Decode(&res)
+		err = json.Unmarshal(rBody, &res)
 		L.Check(err)
 
-		// qid := r.FormValue("qid")
-		// code := r.FormValue("code")
-
-		// res.qid = qid
-		// res.code = code
-
-		// res := make(map[string]string)
-		// res["qid"] = qid
-		// res["code"] = code
-		enc := json.NewEncoder(w)
-		enc.Encode(res)
-		// form values
-
-		// fmt.Fprintf(w, "%s", string(marsh))
-		// fmt.Println("ssss")
+		for i, _ := range res {
+			qid := res[i].Qid
+			code := res[i].Code
+			file := L.CreatePyFile(code, qid)
+			output := L.RunCode(file)
+			fmt.Fprintf(w, "%s: %s\n", qid, output)
+		}
 
 	default:
 		fmt.Fprintf(w, "POST plz")
