@@ -4,6 +4,15 @@ export default {
 
         const database = 'http://localhost:5000';
 
+        const serialize = function(obj) {
+            var str = [];
+            for (var p in obj)
+                if (obj.hasOwnProperty(p)) {
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                }
+            return str.join("&");
+        }
+
         // Fetch single user table
         const fetchUser = async function(userID) {
             const res = await fetch(`${database}/users/${userID}`);
@@ -90,6 +99,16 @@ export default {
             const data = await res.json();
             return data[0]; // just want the one result
         }
+        const fetchStudentExamResultByID = async function(ID) {
+            const res = await fetch(`${database}/studentexamresult/${ID}`);
+            const data = await res.json();
+            return data;
+        };
+        const fetchStudentExamAnswers = async function(serID) {
+            const res = await fetch(`${database}/studentexamanswers?$studentexamresultid=${serID}`);
+            const data = await res.json();
+            return data;
+        };
 
         // app.provide('fetchStudent', fetchStudent);
         // app.provide('fetchTeacher', fetchTeacher);
@@ -100,7 +119,9 @@ export default {
         app.provide('fetchStudentExams', fetchStudentExams);
         app.provide('fetchTeacherExams', fetchTeacherExams);
 
+        app.provide('fetchStudentExamAnswers', fetchStudentExamAnswers);
         app.provide('fetchStudentExamResult', fetchStudentExamResult);
+        app.provide('fetchStudentExamResultByID', fetchStudentExamResultByID);
 
         app.provide('fetchQuestion', fetchQuestion);
         app.provide('fetchQuestions', fetchQuestions);
@@ -109,5 +130,36 @@ export default {
         app.provide('fetchUser', fetchUser);
         app.provide('fetchUserID', fetchUserID);
         app.provide('fetchLoginCredentials', fetchLoginCredentials);
+
+        app.provide('serialize', serialize);
+
+        // Divide points into n close-to equal parts
+        const split = function(x, n) {
+            if(x < n)
+                return 0;
+
+            let res = [];
+            if (x % n == 0) {
+                for (let i = 0; i < n; i++)
+                    res.push(x/n);
+            } else {
+                let zp = n - (x % n);
+                let pp = Math.floor(x/n);
+                for(let i = 0; i < n; i++) {
+                    if(i>= zp)
+                        res.push(pp + 1);
+                    else
+                        res.push(pp);
+                }
+            }
+            return res;
+        };
+
+        const zip = function(a, b) {
+            return a.map((e, i) => [e, b[i]]);
+        }
+
+        app.provide('split', split);
+        app.provide('zip', zip);
     }
 }

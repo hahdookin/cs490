@@ -3,17 +3,24 @@
     <!-- Two column display of exams -->
     <div class="columns-container">
 
-        <!-- Incompleted exams -->
+        <!-- Completed exams -->
         <div class="exams-container">
             <div>
                 <h3 class="column-title">COMPLETED</h3>
             </div>
             <div v-for="exam in completedExams" class="exam-item">
-                <p><router-link to="">{{ exam.name }}</router-link></p>
+                <div v-if="exam.reviewed">
+                    <p><router-link to="">{{ exam.name }}</router-link></p>
+                    <p>View Exam</p>
+                </div>
+                <div v-else>
+                    <p>{{ exam.name }}</p>
+                    <p>Not yet graded</p>
+                </div>
             </div>
         </div>
 
-        <!-- Completed exams -->
+        <!-- Incompleted exams -->
         <div class="exams-container">
             <div>
                 <h3 class="column-title">INCOMPLETED</h3>
@@ -30,7 +37,11 @@
 <script>
 export default {
     name: 'ExamList',
-    inject: ['fetchExam', 'fetchStudentExams'],
+    inject: [
+        'fetchExam', 
+        'fetchStudentExams',
+        'fetchStudentExamResult'
+    ],
     emits: ['student-exam-active'],
     data() {
         return {
@@ -67,10 +78,15 @@ export default {
         // Remember the exam IDs
         const completed = studentExams.completed;
         const incompleted = studentExams.incompleted;
+
+        // Fetch extra exam info like name
         const completedInfo = [];
         const incompletedInfo = [];
         for (const id of completed) {
             const examInfo = await this.fetchExam(id);
+            // Fetch if exam has been reviewed and autograded
+            const studentExamResult = await this.fetchStudentExamResult(studentUserID, id);
+            examInfo.reviewed = studentExamResult.reviewed;
             completedInfo.push(examInfo);
         }
         for (const id of incompleted) {
