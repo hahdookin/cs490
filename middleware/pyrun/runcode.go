@@ -3,12 +3,13 @@ package pyrun
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 )
 
 type Ret struct {
-	questionID string
-	score      string
+	Qid   string
+	Score string
 }
 
 func Check(err error) {
@@ -17,19 +18,27 @@ func Check(err error) {
 	}
 }
 
-func CreatePyFile(code string) {
+func CreatePyFile(code string, filename string) string {
+	// creates a python3 file
 
-	// f, err := os.Create("data.py")
-	// Check(err)
-	//
+	fmt.Println(os.Executable())
+	file := fmt.Sprintf("%s.py", filename)
+	f, err := os.Create(file)
+	Check(err)
 
+	// Writes code into file
+	_, err = f.Write([]byte(code))
+	Check(err)
+
+	f.Close()
+	return file
 }
 
 // RunCode -> run a python file in golang
-func RunCode(file string) {
-	cmd := exec.Command("python3", file)
+func RunCode(file string) string {
+	cmd := exec.Command("python", file)
 	out, err := cmd.Output()
 	Check(err)
 
-	fmt.Println(string(out))
+	return string(out)
 }

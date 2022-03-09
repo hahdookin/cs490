@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strconv"
 
-	L "github.com/hahdookin/cs490/middleware/pyrun"
+	L "github.com/AOrps/cs490/middleware/pyrun"
 )
 
 /*
@@ -27,8 +27,8 @@ type UP struct {
 }
 
 type Grade struct {
-	qid  string `json:"qid"`
-	code string `json:"code"`
+	Qid  string `json:"qid"`
+	Code string `json:"code"`
 }
 
 // sendPOSTJSON -> sends a POST encoded with JSON
@@ -77,18 +77,27 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// func errorResponse(w http.ResponseWriter, message string, httpStatusCode int) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(httpStatusCode)
+// 	resp := make(map[string]string)
+// 	resp["message"] = message
+// 	jsonResp, _ := json.Marshal(resp)
+// 	w.Write(jsonResp)
+// }
+
 func autograde(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		if err := r.ParseForm(); err != nil {
-			log.Fatal(err.Error())
-		}
+		rBody, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		L.Check(err)
+		var res []Grade
 
-		var res Grade
-
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		err := decoder.Decode(&res)
+		// json.Unmarshal(rBody, &res)
+		err = json.Unmarshal(rBody, &res)
+		// decoder.DisallowUnknownFields()
+		// err := decoder.Decode(&res)
 		L.Check(err)
 
 		// qid := r.FormValue("qid")
@@ -96,12 +105,20 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 
 		// res.qid = qid
 		// res.code = code
+		for i, _ := range res {
+			qid := res[i].Qid
+			code := res[i].Code
+			file := L.CreatePyFile(code, qid)
+			output := L.RunCode(file)
+			fmt.Fprintf(w, "%s: %s\n", qid, output)
+		}
 
 		// res := make(map[string]string)
 		// res["qid"] = qid
 		// res["code"] = code
-		enc := json.NewEncoder(w)
-		enc.Encode(res)
+
+		// enc := json.NewEncoder(w)
+		// enc.Encode(res)
 		// form values
 
 		// fmt.Fprintf(w, "%s", string(marsh))
