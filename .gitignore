@@ -1,6 +1,8 @@
 # Creds + Secrets
 back-end/cred.php
 kuasdfihSFHSF.md
+middleware/*.o
+middleware/*.py
 
 # Executables
 *.exe

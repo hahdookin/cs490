@@ -2,10 +2,12 @@
 Description=goweb
 
 [Service]
+User=ubuntu
 Type=simple
 Restart=always
 RestartSec=5s
-ExecStart=/home/ubuntu/cs490/middleware/server
+ExecStart=/home/ubuntu/cs490/middleware/server.o
+WorkingDirectory=/home/ubuntu/cs490/middleware
 
 [Install]
 WantedBy=multi-user.target
