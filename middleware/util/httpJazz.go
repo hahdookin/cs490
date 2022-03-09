@@ -11,7 +11,7 @@ type UP struct {
 	Password string `json:"password"`
 }
 
-// SendPOSTJSON -> sends a POST encoded with JSON (frontend)
+// SendPOSTJSON: sends a POST encoded with JSON (frontend)
 func SendPostJSON(endpoint string, cd UP) string {
 	data := url.Values{
 		"username": {cd.Username},

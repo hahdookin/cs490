@@ -58,19 +58,17 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		L.Check(err)
-		var res L.Grade
+		var res L.Question
 
 		err = json.Unmarshal(rBody, &res)
 		L.Check(err)
 
-		// for i, _ := range res {
-		// 	qid := res[i].Qid
-		// 	code := res[i].Code
+		qid := res.Qid
+		code := res.Code
 
-		// 	file := L.CreatePyFile(code, qid)
-		// 	output := L.RunCode(file)
-		// 	fmt.Fprintf(w, "%s: %s\n", qid, output)
-		// }
+		file := L.CreatePyFile(code, qid)
+		output := L.RunCode(file)
+		fmt.Fprintf(w, "%v", output)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(res)

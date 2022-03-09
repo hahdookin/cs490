@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 )
 
-type Grade struct {
+type Question struct {
 	Qid  string `json:"qid"`
 	Code string `json:"code"`
 }
@@ -16,15 +17,11 @@ type Ret struct {
 	Pass   bool
 }
 
+// CreatePyFile: creates a temp python file
 func CreatePyFile(code string, filename string) string {
-	// creates a python3 file
-
-	// fmt.Println(os.Executable())
 	file := fmt.Sprintf("%s.py", filename)
+	// creates a python3 file
 	f, err := os.Create(file)
-	Check(err)
-
-	// _, err = f.Write([]byte("#!/usr/bin/python3\n"))
 	Check(err)
 
 	// Writes code into file
@@ -35,9 +32,28 @@ func CreatePyFile(code string, filename string) string {
 	return file
 }
 
-// RunCode -> run a python file in golang
+func detectOS() string {
+	path := ""
+	os := runtime.GOOS
+
+	switch os {
+	case "windows":
+		path = "C:\\Users\\Andres\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+		// path = "/c/Users/Andres/AppData/Local/Microsoft/WindowsApps/python3.exe"
+	case "linux":
+		path = "/usr/bin/python3"
+	default:
+		path = "/usr/bin/python"
+	}
+
+	fmt.Println(path)
+
+	return path
+}
+
+// RunCode: run a python file in golang
 func RunCode(file string) string {
-	cmd := exec.Command("python", file)
+	cmd := exec.Command(detectOS(), file)
 	out, err := cmd.Output()
 	Check(err)
 
