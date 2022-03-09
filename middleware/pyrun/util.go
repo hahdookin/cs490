@@ -56,6 +56,7 @@ func CreatePyFile(code string, filename string) string {
 	file := fmt.Sprintf("%s.py", filename)
 	f, err := os.Create(file)
 	Check(err)
+	
 	_, err = f.Write([]byte("#!/usr/bin/python3\n"))
 	Check(err)
 

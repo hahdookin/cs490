@@ -49,9 +49,11 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		for i, _ := range res {
 			qid := res[i].Qid
 			code := res[i].Code
-			file := L.CreatePyFile(code, qid)
-			output := L.RunCode(file)
-			fmt.Fprintf(w, "%s: %s\n", qid, output)
+			fmt.Fprintf(w, "%s: %s\n", qid, code)
+
+			// file := L.CreatePyFile(code, qid)
+			// output := L.RunCode(file)
+			// fmt.Fprintf(w, "%s: %s\n", qid, output)
 		}
 
 	default:
