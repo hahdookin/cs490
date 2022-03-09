@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	L "github.com/hahdookin/cs490/middleware/pyrun"
 )
 
 /*
@@ -19,14 +22,13 @@ const (
 )
 
 type UP struct {
-	username string
-	password string
+	username string `json:"username"`
+	password string `json:"password"`
 }
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+type Grade struct {
+	qid  string `json:"qid"`
+	code string `json:"code"`
 }
 
 // sendPOSTJSON -> sends a POST encoded with JSON
@@ -37,12 +39,12 @@ func sendPostJSON(endpoint string, cd UP) string {
 	}
 
 	resp, err := http.PostForm(endpoint, data)
-	check(err)
+	L.Check(err)
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	check(err)
+	L.Check(err)
 
 	return string(body)
 }
@@ -82,11 +84,28 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 		}
 
-		qid := r.FormValue("qid")
-		code := r.FormValue("code")
+		var res Grade
 
-		fmt.Fprintf(w, "{qid:%s,code:%s}", qid, code)
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		err := decoder.Decode(&res)
+		L.Check(err)
+
+		// qid := r.FormValue("qid")
+		// code := r.FormValue("code")
+
+		// res.qid = qid
+		// res.code = code
+
+		// res := make(map[string]string)
+		// res["qid"] = qid
+		// res["code"] = code
+		enc := json.NewEncoder(w)
+		enc.Encode(res)
 		// form values
+
+		// fmt.Fprintf(w, "%s", string(marsh))
+		// fmt.Println("ssss")
 
 	default:
 		fmt.Fprintf(w, "POST plz")
@@ -105,6 +124,6 @@ func main() {
 
 	// start Server at port
 	err := http.ListenAndServe(":"+port, nil)
-	check(err)
+	L.Check(err)
 
 }
