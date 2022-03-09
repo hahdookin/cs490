@@ -67,6 +67,7 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		code := res.Code
 
 		file := L.CreatePyFile(code, qid)
+		fmt.Fprintf(w, "%v", file)
 		output := L.RunCode(file)
 		fmt.Fprintf(w, "%v", output)
 
