@@ -1,7 +1,8 @@
 <template>
-    <h1>Review Exam</h1>
+    <h1>View Graded</h1>
     <div v-if="loaded">
         <h1>{{ exam.name }} (ID: {{ exam.id }})</h1>
+        <h1>Score: {{ earnedPoints }}/{{ totalPoints }}</h1>
 
         <div :key="question.id" v-for="(question, i) in questions">
 
@@ -38,19 +39,18 @@
                             <td>{{ testStr(test, question.functionname) }}</td>
                             <td>{{ test.studentoutput }}</td>
                             <td>{{ test.pass ? "Yes" : "No" }}</td>
-                            <td><input type="number" size="4" :max="test.points" v-model="test.points" min="0"></td>
+                            <td><input disabled type="number" size="4" :max="test.points" v-model="test.points" min="0"></td>
                         </tr>
                     </table>
                     <!-- Instructor comment box -->
                     <div class="comment-box">
                         <p>Comment:</p>
-                        <textarea v-model="question.comment"></textarea>
+                        <textarea disabled>{{ question.comment }}</textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <button @click="onSubmit">Finalize Grades</button>
 </template>
 
 <script>
@@ -67,64 +67,18 @@ export default {
     ],
     data() {
         return {
-            teacherUserID: this.$route.params.userid,
+            studentUserID: this.$route.params.userid,
             studentExamResultID: this.$route.params.studentexamresultid,
             studentExamResult: {},
             studentExamAnswers: [],
             exam: {},
             questions: [],
             loaded: false,
+            totalPoints: 0,
+            earnedPoints: 0,
         };
     },
     methods: {
-        async onSubmit() {
-            // Get total points awarded
-            let totalPoints = 0;
-            this.questions.forEach(q => {
-                q.tests.forEach(t => {
-                    totalPoints += t.points;
-                });
-            });
-
-            // Update studentexamanswer points amount and the comment
-            for (const q of this.questions) {
-                const studentsAnswer = this.studentsAnswer(q.id);
-                for (const [qTest, sTest] of this.zip(q.tests, studentsAnswer.tests)) {
-                    sTest.points = qTest.points;
-                }
-                studentsAnswer.comment = q.comment;
-            }
-
-            // Set the total points for studentexamresult and mark it reviewed
-            this.studentExamResult.points = totalPoints;
-            this.studentExamResult.autograded = true; // REMOVEME:
-            this.studentExamResult.reviewed = true;
-
-            // Put the studentexamanswers and studentexamresult
-            // Put the studentexamanswers
-            for (const sea of this.studentExamAnswers) {
-                const id = sea.id;
-                const res = await fetch(`http://localhost:5000/studentexamanswers/${id}`, {
-                    method: 'put',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(sea)
-                });
-            }
-            // Put the studentexamresult
-            const id = this.studentExamResultID;
-            const res = await fetch(`http://localhost:5000/studentexamresult/${id}`, {
-                method: 'put',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.studentExamResult)
-            });
-
-            // Redirect back to home
-            this.$router.push(`/teacher/${this.userid}/`);
-        },
         studentsAnswer(qid) {
             const answer = this.studentExamAnswers.find(a => a.questionid === qid);
             return answer;
@@ -150,6 +104,16 @@ export default {
             }
             question.comment = studentsAnswer.comment;
         }
+
+        // Get total points
+        // Get earned points
+        this.questions.forEach(q => {
+            this.totalPoints += q.points;
+            q.tests.forEach(t => {
+                // Add points earned from each test case
+                this.earnedPoints += t.points;
+            });
+        });
 
         this.loaded = true;
     }

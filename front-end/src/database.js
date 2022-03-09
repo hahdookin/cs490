@@ -3,6 +3,7 @@ export default {
     install: (app, options) => {
 
         const database = 'http://localhost:5000';
+        const middle = 'http://ec2-3-136-155-192.us-east-2.compute.amazonaws.com';
 
         const serialize = function(obj) {
             var str = [];
@@ -12,6 +13,23 @@ export default {
                 }
             return str.join("&");
         }
+
+        const postToAutograder = async function(qid, code) {
+            const res = await fetch(`${middle}/cringe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: serialize({
+                    qid: qid,
+                    code: code
+                })
+            });
+            const resp = await res.text();
+            return resp;
+        }
+
+        app.provide('postToAutograder', postToAutograder);
 
         // Fetch single user table
         const fetchUser = async function(userID) {
