@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	L "github.com/AOrps/cs490/middleware/pyrun"
+	L "github.com/AOrps/cs490/middleware/util"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
 
-// login -> server logic
+// login -> handles login functionality (returns type: student | teacher)
 func login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
@@ -46,15 +46,17 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(rBody, &res)
 		L.Check(err)
 
-		for i, _ := range res {
-			qid := res[i].Qid
-			code := res[i].Code
-			fmt.Fprintf(w, "%s: %s\n", qid, code)
+		// for i, _ := range res {
+		// 	qid := res[i].Qid
+		// 	code := res[i].Code
 
-			// file := L.CreatePyFile(code, qid)
-			// output := L.RunCode(file)
-			// fmt.Fprintf(w, "%s: %s\n", qid, output)
-		}
+		// 	file := L.CreatePyFile(code, qid)
+		// 	output := L.RunCode(file)
+		// 	fmt.Fprintf(w, "%s: %s\n", qid, output)
+		// }
+
+		enc := json.NewEncoder(w)
+		enc.Encode(res)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
