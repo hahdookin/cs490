@@ -35,6 +35,8 @@
 export default {
     name: 'Exam',
     inject: [
+        'zip',
+        'split',
         'fetchExam', 
         'fetchQuestionsFromExam', 
         'fetchQuestion',
@@ -65,6 +67,7 @@ export default {
                 examid: this.examID,
                 userid: studentUserID,
                 autograded: false,
+                reviewed: false,
                 points: this.totalExamPoints(this.exam),
             };
             const res = await fetch('http://localhost:5000/studentexamresult', {
@@ -76,12 +79,27 @@ export default {
             });
             const studentexamresult = await res.json();
 
+
             // Post studentexamanswers
             for (const question of this.questions) {
+                const testsPayload = [];
+                const testsCount = question.tests.length;
+                const points = question.points;
+                for (const [test, p] of this.zip(question.tests, this.split(points, testsCount))) {
+                    // TODO: pass will be handled by querying autograder,
+                    // for now just put random pass or fail
+                    testsPayload.push({
+                        pass: Math.random() > 0.5,
+                        points: p,
+                        studentoutput: Math.floor(Math.random() * 20)
+                    });
+                }
                 const payload = {
                     questionid: question.id,
                     studentexamresultid: studentexamresult.id,
                     code: question.code,
+                    tests: testsPayload,
+                    comment: '',
                 };
                 const res = await fetch('http://localhost:5000/studentexamanswers', {
                     method: 'post',
