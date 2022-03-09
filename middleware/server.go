@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -30,6 +31,22 @@ func login(w http.ResponseWriter, r *http.Request) {
 		resp := L.SendPostJSON(BACKEND, clientData)
 		fmt.Fprintf(w, "%v", resp)
 
+	default:
+		fmt.Fprintf(w, "POST plz")
+	}
+}
+
+func cringe(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		if err := r.ParseForm(); err != nil {
+			log.Fatal(err.Error())
+		}
+
+		qid := r.FormValue("qid")
+		code := r.FormValue("code")
+
+		fmt.Fprintf(w, "{\"qid\":\"%s\",\"code\":\"%s\"}", qid, code)
 	default:
 		fmt.Fprintf(w, "POST plz")
 	}
@@ -69,6 +86,7 @@ func main() {
 	// handler
 	http.HandleFunc("/", login)
 	http.HandleFunc("/autograde", autograde)
+	http.HandleFunc("/cringe", autogradec)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
