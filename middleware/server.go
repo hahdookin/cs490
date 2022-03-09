@@ -58,7 +58,7 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		L.Check(err)
-		var res []L.Grade
+		var res L.Grade
 
 		err = json.Unmarshal(rBody, &res)
 		L.Check(err)

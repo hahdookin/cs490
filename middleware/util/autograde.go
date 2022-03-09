@@ -12,8 +12,8 @@ type Grade struct {
 }
 
 type Ret struct {
-	Qid   string
-	Score string
+	Output string
+	Pass   bool
 }
 
 func CreatePyFile(code string, filename string) string {
@@ -24,7 +24,7 @@ func CreatePyFile(code string, filename string) string {
 	f, err := os.Create(file)
 	Check(err)
 
-	_, err = f.Write([]byte("#!/usr/bin/python3\n"))
+	// _, err = f.Write([]byte("#!/usr/bin/python3\n"))
 	Check(err)
 
 	// Writes code into file
