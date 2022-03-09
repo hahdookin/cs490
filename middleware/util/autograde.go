@@ -18,7 +18,7 @@ type Ret struct {
 }
 
 // CreatePyFile: creates a temp python file
-func CreatePyFile(code string, filename string) string {
+func CreatePyFile(code, filename string) string {
 	file := fmt.Sprintf("%s.py", filename)
 	// creates a python3 file
 	f, err := os.Create(file)
@@ -32,24 +32,28 @@ func CreatePyFile(code string, filename string) string {
 	return file
 }
 
+func RemovePyFile(filename string) {
+
+}
+
+// detectOS: detects OS
 func detectOS() string {
 	path := ""
 	os := runtime.GOOS
 
 	switch os {
 	case "windows":
-		path = "C:\\Users\\Andres\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
-		// path = "/c/Users/Andres/AppData/Local/Microsoft/WindowsApps/python3.exe"
+		path = `C:\Program Files\Python310\python.exe`
 	case "linux":
 		path = "/usr/bin/python3"
 	default:
 		path = "/usr/bin/python"
 	}
 
-	fmt.Println(path)
-
 	return path
 }
+
+func AddTestCase(input, file string) {}
 
 // RunCode: run a python file in golang
 func RunCode(file string) string {
