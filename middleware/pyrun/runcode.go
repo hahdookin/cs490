@@ -11,17 +11,25 @@ type Ret struct {
 	score      string
 }
 
-func Hello() {
-	fmt.Println("Hello!")
+func Check(err error) {
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func CreatePyFile(code string) {
+
+	// f, err := os.Create("data.py")
+	// Check(err)
+	//
+
 }
 
 // RunCode -> run a python file in golang
 func RunCode(file string) {
 	cmd := exec.Command("python3", file)
 	out, err := cmd.Output()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	Check(err)
 
 	fmt.Println(string(out))
 }
