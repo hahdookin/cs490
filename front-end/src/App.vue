@@ -20,6 +20,7 @@ export default {
         Header,
         Footer,
     },
+    inject: ['serialize'],
     data() { 
         return {
             userInfo: {
@@ -51,7 +52,7 @@ export default {
             this.userInfo.type = '';
             this.userInfo.userid = -1;
             this.$router.push('/');
-        },
+        }
     },
     created() {},
 }

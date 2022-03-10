@@ -41,6 +41,9 @@ export default {
         'fetchQuestionsFromExam', 
         'fetchQuestion',
         'fetchStudentExams',
+        'postStudentExamResult',
+        'postStudentExamAnswer',
+        'updateStudentExams',
     ],
     components: {},
     /* emits: ['student-exam-active'], */
@@ -70,57 +73,45 @@ export default {
                 reviewed: false,
                 points: this.totalExamPoints(this.exam),
             };
-            const res = await fetch('http://localhost:5000/studentexamresult', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await this.postStudentExamResult(payload);
             const studentexamresult = await res.json();
-
 
             // Post studentexamanswers
             for (const question of this.questions) {
                 const testsPayload = [];
                 const testsCount = question.tests.length;
                 const points = question.points;
-                for (const [test, p] of this.zip(question.tests, this.split(points, testsCount))) {
+                // Subtract 1 point for the correct fname
+                const pointDist = this.split(points - (points === 0 ? 0 : 1), testsCount);
+                for (const [test, p] of this.zip(question.tests, pointDist)) {
                     // TODO: pass will be handled by querying autograder,
                     // for now just put random pass or fail
                     testsPayload.push({
-                        pass: Math.random() > 0.5,
-                        points: p,
-                        studentoutput: Math.floor(Math.random() * 20)
+                        pass: false,
+                        points: p || 0,
+                        studentoutput: ''
                     });
                 }
                 const payload = {
                     questionid: question.id,
                     studentexamresultid: studentexamresult.id,
+                    runs: false,
+                    namecorrect: false,
+                    namecorrectpoints: 0,
                     code: question.code,
                     tests: testsPayload,
                     comment: '',
                 };
-                const res = await fetch('http://localhost:5000/studentexamanswers', {
-                    method: 'post',
-                    headers: {
-                        'Content-type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
+                const res = await this.postStudentExamAnswer(payload);
             }
+
             // Move examID from incompleted to completed
             const studentExams = await this.fetchStudentExams(studentUserID);
             const i = studentExams.incompleted.indexOf(this.examID);
             studentExams.incompleted.splice(i, 1);
             studentExams.completed.push(this.examID);
-            const res2 = await fetch(`http://localhost:5000/studentexams/${studentExams.id}`, {
-                method: 'put',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(studentExams)
-            });
+            const res2 = await this.updateStudentExams(studentExams);
+
             // Redirect to student dashboard
             this.$router.push(`/student/${studentUserID}`);
         },

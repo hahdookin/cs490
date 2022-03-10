@@ -33,7 +33,13 @@ export default {
         async onSubmit(e) {
             e.preventDefault();
             // Post username and password to database
-            const credientials = await this.fetchLoginCredentials(this.username, this.password);
+            let credientials;
+            try {
+                credientials = await this.fetchLoginCredentials(this.username, this.password);
+            } catch (error) {
+                this.errorMessage = 'Network error, try again later';
+                return;
+            }
 
             // On bad credientials
             if (!credientials) {

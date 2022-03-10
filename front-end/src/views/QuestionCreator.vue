@@ -95,6 +95,7 @@
 
 export default {
     name: 'QuestionCreator',
+    inject: ['postQuestion'],
     data() {
         return {
             errorMessage: '',
@@ -129,14 +130,10 @@ export default {
                 parameters: this.parameters,
                 tests: this.tests
             };
+
             // Post question to DATABASE
-            const res = await fetch('http://localhost:5000/questions', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await this.postQuestion(payload);
+
             this.setSuccess(`Successfully created question: ${this.title}`);
         },
         validateForm() {

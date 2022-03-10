@@ -36,15 +36,15 @@
       "tests": [
         {
           "arguments": [
-            "apple"
+            "\"apple\""
           ],
-          "output": "APPLE"
+          "output": "\"APPLE\""
         },
         {
           "arguments": [
-            "GoodMorning"
+            "\"GoodMorning\""
           ],
-          "output": "GOODMORNING"
+          "output": "\"GOODMORNING\""
         }
       ]
     },
@@ -110,7 +110,7 @@
       "questions": [
         {
           "id": 3,
-          "points": 0
+          "points": 10
         }
       ],
       "id": 2
@@ -140,7 +140,7 @@
       "userid": 2,
       "incompleted": [],
       "completed": [
-        3
+        2
       ]
     }
   ],
@@ -148,77 +148,39 @@
     {
       "assignerid": 1,
       "assigneeid": 2,
-      "examid": 3,
+      "examid": 2,
       "id": 1
     }
   ],
   "studentexamresult": [
     {
-      "examid": 3,
+      "examid": 2,
       "userid": 2,
-      "autograded": false,
-      "reviewed": false,
-      "points": 75,
+      "autograded": true,
+      "reviewed": true,
+      "points": 3,
       "id": 1
     }
   ],
   "studentexamanswers": [
     {
-      "questionid": 1,
-      "studentexamresultid": 1,
-      "code": "def DoubleIt(x):\n\treturn x + 2",
-      "tests": [
-        {
-          "pass": true,
-          "points": 7,
-          "studentoutput": 14
-        },
-        {
-          "pass": true,
-          "points": 8,
-          "studentoutput": 5
-        }
-      ],
-      "comment": "",
-      "id": 1
-    },
-    {
-      "questionid": 2,
-      "studentexamresultid": 1,
-      "code": "def ToUpper(s):\n\treturn s.toUpper()",
-      "tests": [
-        {
-          "pass": false,
-          "points": 10,
-          "studentoutput": 9
-        },
-        {
-          "pass": true,
-          "points": 10,
-          "studentoutput": 12
-        }
-      ],
-      "comment": "",
-      "id": 2
-    },
-    {
       "questionid": 3,
       "studentexamresultid": 1,
-      "code": "def AddEm(x,y):\n\treturn x - y",
+      "code": "def AddEm(x,y):\n\treturn x + y",
       "tests": [
         {
           "pass": true,
-          "points": 20,
-          "studentoutput": 6
+          "points": 0,
+          "studentoutput": 0
         },
         {
-          "pass": false,
-          "points": 20,
-          "studentoutput": 14
+          "pass": true,
+          "points": 3,
+          "studentoutput": 18
         }
       ],
-      "comment": "",
-      "id": 3
+      "comment": "jhkjhkjh",
+      "id": 1
     }
   ]
 }
