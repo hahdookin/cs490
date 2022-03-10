@@ -8,7 +8,6 @@
         <router-view></router-view>
         <Footer :userInfo="userInfo" />
     </div>
-    <button @click="fetchDB">SDFSD</button>
 </template>
 
 <script>
@@ -21,6 +20,7 @@ export default {
         Header,
         Footer,
     },
+    inject: ['serialize'],
     data() { 
         return {
             userInfo: {
@@ -52,11 +52,6 @@ export default {
             this.userInfo.type = '';
             this.userInfo.userid = -1;
             this.$router.push('/');
-        },
-        async fetchDB() {
-            const res = await fetch('http://ec2-3-92-132-35.compute-1.amazonaws.com/users') 
-            const resp = await res.json();
-            console.log("RESP:", resp);
         }
     },
     created() {},

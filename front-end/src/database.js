@@ -2,7 +2,8 @@
 export default {
     install: (app, options) => {
 
-        const database = 'http://localhost:5000';
+        //const database = 'http://localhost:5000';
+        const database = 'http://ec2-3-92-132-35.compute-1.amazonaws.com';
         const middle = 'http://ec2-3-136-155-192.us-east-2.compute.amazonaws.com';
 
         const serialize = function(obj) {
@@ -25,10 +26,9 @@ export default {
                     code: code
                 })
             });
-            const resp = await res.text();
+            const resp = await res.json();
             return resp;
-        }
-
+        };
         app.provide('postToAutograder', postToAutograder);
 
         // Fetch single user table
@@ -37,12 +37,6 @@ export default {
             const data = await res.json();
             return data;
         }
-        // Fetch single student table by userID
-        // const fetchStudent = async function(userID) {
-        //     const res = await fetch(`${database}/students?userid=${userID}`);
-        //     const data = await res.json();
-        //     return data[0]; // return first result
-        // };
         // Fetch single exam table by examID
         const fetchExam = async function(examID) {
             const res = await fetch(`${database}/exams/${examID}`);
@@ -59,12 +53,6 @@ export default {
             const data = await res.json();
             return data;
         };
-        // Fetch single teacher table
-        // const fetchTeacher = async function(userID) {
-        //     const res = await fetch(`${database}/teachers?userid=${userID}`);
-        //     const data = await res.json();
-        //     return data[0]; // return first result
-        // };
         // Fetch all teacher exams (examID, assignee, assigner)
         const fetchTeacherExams = async function(userID) {
             const res = await fetch(`${database}/teacherexams?assignerid=${userID}`);
@@ -80,6 +68,8 @@ export default {
         // Fetch all question tables from question IDs in exam questions
         const fetchQuestionsFromExam = async function(examID) {
             const exam = await fetchExam(examID);
+            // Exam doesn't exist or has no questions (??), should throw but just return empty
+            if (!exam.questions) return [];
             const questions = [];
             for (const { id, points } of exam.questions) {
                 const question = await fetchQuestion(id);
@@ -123,13 +113,101 @@ export default {
             return data;
         };
         const fetchStudentExamAnswers = async function(serID) {
-            const res = await fetch(`${database}/studentexamanswers?$studentexamresultid=${serID}`);
+            const res = await fetch(`${database}/studentexamanswers?studentexamresultid=${serID}`);
             const data = await res.json();
             return data;
         };
+        app.provide('fetchStudentExamAnswers', fetchStudentExamAnswers);
 
-        // app.provide('fetchStudent', fetchStudent);
-        // app.provide('fetchTeacher', fetchTeacher);
+        const postQuestion = async function(question) {
+            const res = await fetch(`${database}/questions`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(question)
+            });
+        };
+        app.provide('postQuestion', postQuestion);
+
+        const postExam = async function(exam) {
+            const res = await fetch(`${database}/exams`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(exam)
+            });
+        };
+        app.provide('postExam', postExam);
+
+        const postTeacherExam = async function(teacherexam) {
+            const res = await fetch(`${database}/teacherexams`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(teacherexam)
+            });
+        };
+        app.provide('postTeacherExam', postTeacherExam);
+
+        const updateStudentExams = async function(studentexams) {
+            const res = await fetch(`${database}/studentexams/${studentexams.id}`, {
+                method: 'put',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(studentexams)
+            });
+        };
+        app.provide('updateStudentExams', updateStudentExams);
+
+        const postStudentExamResult = async function(studentexamresult) {
+            const res = await fetch(`${database}/studentexamresult`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(studentexamresult)
+            });
+            return res;
+        };
+        app.provide('postStudentExamResult', postStudentExamResult);
+
+
+        const postStudentExamAnswer = async function(sea) {
+            const res = await fetch(`${database}/studentexamanswers`, {
+                method: 'post',
+                headers: {
+                    'Content-type': 'application/json',
+                },
+                body: JSON.stringify(sea)
+            });
+        };
+        app.provide('postStudentExamAnswer', postStudentExamAnswer);
+
+        const putStudentExamResult = async function(ser) {
+            const res = await fetch(`${database}/studentexamresult/${ser.id}`, {
+                method: 'put',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ser)
+            });
+        };
+        app.provide('putStudentExamResult', putStudentExamResult);
+
+        const putStudentExamAnswer = async function(sea) {
+            const res = await fetch(`${database}/studentexamanswers/${sea.id}`, {
+                method: 'put',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sea)
+            });
+        };
+        app.provide('putStudentExamAnswer', putStudentExamAnswer);
 
         app.provide('fetchExam', fetchExam);
         app.provide('fetchExams', fetchExams);
@@ -137,7 +215,6 @@ export default {
         app.provide('fetchStudentExams', fetchStudentExams);
         app.provide('fetchTeacherExams', fetchTeacherExams);
 
-        app.provide('fetchStudentExamAnswers', fetchStudentExamAnswers);
         app.provide('fetchStudentExamResult', fetchStudentExamResult);
         app.provide('fetchStudentExamResultByID', fetchStudentExamResultByID);
 

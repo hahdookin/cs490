@@ -26,6 +26,17 @@
                 </div>
                 <!-- Instructors point column table -->
                 <div class="grades-container">
+                    <table>
+                        <tr>
+                            <th colspan="2">Runs?</th>
+                            <td colspan="1">{{ question.runs ? "Yes" : "No" }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Correct Name?</th>
+                            <td colspan="1">{{ question.namecorrect ? "Yes" : "No" }}</td>
+                            <td><input type="number" size="4" :max="1" v-model="question.namecorrectpoints" min="0"></td>
+                        </tr>
+                    </table>
                     <!-- Test cases and point assignment -->
                     <table>
                         <tr>
@@ -38,7 +49,7 @@
                             <td>{{ testStr(test, question.functionname) }}</td>
                             <td>{{ test.studentoutput }}</td>
                             <td>{{ test.pass ? "Yes" : "No" }}</td>
-                            <td><input type="number" size="4" :max="test.points" v-model="test.points" min="0"></td>
+                            <td><input type="number" size="4" :max="test.maxpoints" v-model="test.points" min="0"></td>
                         </tr>
                     </table>
                     <!-- Instructor comment box -->
@@ -64,11 +75,13 @@ export default {
         'fetchStudentExamResult',
         'fetchStudentExamResultByID',
         'fetchStudentExamAnswers',
+        'putStudentExamAnswer',
+        'putStudentExamResult'
     ],
     data() {
         return {
-            teacherUserID: this.$route.params.userid,
-            studentExamResultID: this.$route.params.studentexamresultid,
+            teacherUserID: +this.$route.params.userid,
+            studentExamResultID: +this.$route.params.studentexamresultid,
             studentExamResult: {},
             studentExamAnswers: [],
             exam: {},
@@ -84,6 +97,7 @@ export default {
                 q.tests.forEach(t => {
                     totalPoints += t.points;
                 });
+                totalPoints += q.namecorrectpoints;
             });
 
             // Update studentexamanswer points amount and the comment
@@ -92,6 +106,7 @@ export default {
                 for (const [qTest, sTest] of this.zip(q.tests, studentsAnswer.tests)) {
                     sTest.points = qTest.points;
                 }
+                studentsAnswer.namecorrectpoints = q.namecorrectpoints;
                 studentsAnswer.comment = q.comment;
             }
 
@@ -101,32 +116,22 @@ export default {
             this.studentExamResult.reviewed = true;
 
             // Put the studentexamanswers and studentexamresult
+
             // Put the studentexamanswers
             for (const sea of this.studentExamAnswers) {
-                const id = sea.id;
-                const res = await fetch(`http://localhost:5000/studentexamanswers/${id}`, {
-                    method: 'put',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(sea)
-                });
+                const res = await this.putStudentExamAnswer(sea);
             }
+
             // Put the studentexamresult
-            const id = this.studentExamResultID;
-            const res = await fetch(`http://localhost:5000/studentexamresult/${id}`, {
-                method: 'put',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.studentExamResult)
-            });
+            const res = await this.putStudentExamResult(this.studentExamResult);
 
             // Redirect back to home
             this.$router.push(`/teacher/${this.userid}/`);
         },
         studentsAnswer(qid) {
-            const answer = this.studentExamAnswers.find(a => a.questionid === qid);
+            const answer = this.studentExamAnswers.find(
+                a => a.questionid === qid && a.studentexamresultid === this.studentExamResultID
+            );
             return answer;
         },
         testStr(test, fname) {
@@ -148,6 +153,14 @@ export default {
                 qTest.pass = sTest.pass;
                 qTest.studentoutput = sTest.studentoutput;
             }
+            const testsCount = question.tests.length;
+            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+            for (const [qTest, maxPoints] of this.zip(question.tests, pointDist)) {
+                qTest.maxpoints = maxPoints;
+            }
+            question.runs = studentsAnswer.runs;
+            question.namecorrect = studentsAnswer.namecorrect;
+            question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.comment = studentsAnswer.comment;
         }
 

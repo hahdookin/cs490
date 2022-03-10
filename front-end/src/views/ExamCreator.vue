@@ -82,7 +82,7 @@ const examColumn = 2;
 
 export default {
     name: 'ExamCreator',
-    inject: ['fetchQuestions'],
+    inject: ['fetchQuestions', 'postExam'],
     components: {},
     props: {},
     data() {
@@ -136,13 +136,8 @@ export default {
                 name: this.examName,
                 questions: examQuestions,
             };
-            const res = await fetch('http://localhost:5000/exams', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await this.postExam(payload);
+
             // TODO:Check response
             this.setSuccess(`Successfully created exam: ${this.examName}`);
             this.examName = '';

@@ -9,8 +9,8 @@
         <div>
             <p>Status: {{ exam.completed ? 'Completed' : 'Not yet completed' }}</p>
             <div v-if="exam.completed">
-                <button @click="postAutoGrade(exam.id)" 
-                        :disabled="exam.autograded">AutoGrade</button>
+                <button @click="proceedAutoGrade(exam)" 
+                        :disabled="exam.autograded">{{ autogradeInProgress ? 'In Progress' : 'AutoGrade' }}</button>
                 <button @click="reviewAndSubmitExam(exam.studentExamResult)"
                         :disabled="!exam.autograded && !exam.reviewed">Review and Submit</button>
             </div>
@@ -22,17 +22,22 @@
 export default {
     name: 'ViewExams',
     inject: [
+        'zip',
         'postToAutograder',
+        'putStudentExamAnswer',
+        'putStudentExamResult',
         'fetchUser',
         'fetchTeacherExams', 
         'fetchExam',
         'fetchStudentExams',
         'fetchStudentExamResult',
+        'fetchStudentExamAnswers',
     ],
     data() {
         return {
             teacherExams: [], // { assigner, assignee, id, examid }
             noexams: false,
+            autogradeInProgress: false
         };
     },
     async created() {
@@ -70,12 +75,34 @@ export default {
         }
     },
     methods: {
-        async postAutoGrade(exam) {
-            console.log("Sending to autograder", exam);
+        /*
+        {namecorrect: bool, output: [], pass: [], runs: bool}
+        */
+        async proceedAutoGrade(exam) {
+            this.autogradeInProgress = true;
+            const studentUserID = exam.assigneeid;
+            const ser = await this.fetchStudentExamResult(studentUserID, exam.id);
+            const sea = await this.fetchStudentExamAnswers(ser.id);
+            for (const answer of sea) {
+                const res = await this.postToAutograder(answer.questionid, answer.code);
+                answer.runs = res.runs;
+                answer.namecorrect = res.namecorrect;
+                answer.namecorrectpoints = +res.namecorrect; // 1 if true, 0 otherwise
+                for (let i = 0; i < answer.tests.length; i++) {
+                    answer.tests[i].pass = res.pass[i];
+                    answer.tests[i].studentoutput = res.output[i];
+                    answer.tests[i].points *= +res.pass[i];
+                }
+                const res2 = await this.putStudentExamAnswer(answer);
+            }
+            ser.autograded = true;
+            exam.autograded = true;
 
-            const resp = await this.postToAutograder(20, 'some code here!')
-            //exam.autograded = true;
-            console.log(resp);
+            console.log(ser);
+            const res = await this.putStudentExamResult(ser);
+            console.log(res);
+
+            this.autogradeInProgress = false;
         },
         reviewAndSubmitExam(studentExamResult) {
             const teacherUserID = this.$route.params.userid;

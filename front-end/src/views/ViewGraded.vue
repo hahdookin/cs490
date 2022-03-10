@@ -30,6 +30,15 @@
                     <!-- Test cases and point assignment -->
                     <table>
                         <tr>
+                            <th colspan="2">Runs?</th>
+                            <td colspan="1">{{ question.runs ? "Yes" : "No" }}</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Correct Name?</th>
+                            <td colspan="1">{{ question.namecorrect ? "Yes" : "No" }}</td>
+                            <td><input disabled type="number" size="4" :max="1" v-model="question.namecorrectpoints" min="0"></td>
+                        </tr>
+                        <tr>
                             <th>Expected</th>
                             <th>Run</th>
                             <th>Pass?</th>
@@ -102,6 +111,9 @@ export default {
                 qTest.pass = sTest.pass;
                 qTest.studentoutput = sTest.studentoutput;
             }
+            question.runs = studentsAnswer.runs;
+            question.namecorrect = studentsAnswer.namecorrect;
+            question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.comment = studentsAnswer.comment;
         }
 
@@ -113,6 +125,7 @@ export default {
                 // Add points earned from each test case
                 this.earnedPoints += t.points;
             });
+            this.earnedPoints += q.namecorrectpoints;
         });
 
         this.loaded = true;
