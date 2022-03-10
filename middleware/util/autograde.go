@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 )
 
 type Question struct {
@@ -61,7 +62,7 @@ func RevertFile(file string, version []byte) {
 }
 
 // AddTestCase: adds a test case to the end of the file
-func AddTestCase(file string, qTest DBQuestion_Test) {
+func AddTestCase(file string, args []string) {
 
 	data, err := os.ReadFile(file)
 	Check(err)
@@ -78,13 +79,26 @@ func AddTestCase(file string, qTest DBQuestion_Test) {
 	_, err = f.WriteString(fmt.Sprintf("print(%s(", pyfunc))
 	Check(err)
 
-	for i, arg := range qTest.Arguments {
-		if i < len(qTest.Arguments)-1 {
-			_, err = f.WriteString(fmt.Sprintf("%s,", arg))
-			Check(err)
+	for i, arg := range args {
+		_, err := strconv.Atoi(arg)
+		if err != nil {
+			strVar := fmt.Sprintf("\"%s\"", arg)
+
+			if i < len(args)-1 {
+				_, err = f.WriteString(fmt.Sprintf("%s,", strVar))
+				Check(err)
+			} else {
+				_, err = f.WriteString(strVar)
+				Check(err)
+			}
 		} else {
-			_, err = f.WriteString(arg)
-			Check(err)
+			if i < len(args)-1 {
+				_, err = f.WriteString(fmt.Sprintf("%s,", arg))
+				Check(err)
+			} else {
+				_, err = f.WriteString(arg)
+				Check(err)
+			}
 		}
 	}
 
@@ -93,15 +107,14 @@ func AddTestCase(file string, qTest DBQuestion_Test) {
 }
 
 // RunCode: run a python file in golang
-func RunCode(file string) (string, bool) {
-	doesRun := true
+func RunCode(file, validate string) (string, bool) {
 	cmd := exec.Command(detectOS(), file)
 	out, err := cmd.Output()
 	if err != nil {
-		doesRun = false
+		return "", false
 	}
 
-	return string(out), doesRun
+	return string(out), validate == string(out)
 }
 
 // FullGrade: does all the autograde stuff
@@ -121,45 +134,35 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	f, err := os.ReadFile(file)
 	Check(err)
 
+	cmd := exec.Command(detectOS(), file)
+	if err := cmd.Run(); err != nil {
+		doesRun = false
+	} else {
+		doesRun = true
+	}
+
 	// iterates thru test cases, runs it and then reverts
 	for _, test := range DBQuest.Tests {
 
-		AddTestCase(file, test)
-		output, doesRun := RunCode(file)
+		AddTestCase(file, test.Arguments)
+		validate := test.Output
+		output, trySuccess := RunCode(file, validate)
+
+		// To Print out stuff uncomment lines below
 		// g, err := os.ReadFile(file)
 		// Check(err)
 		// fmt.Println(string(g))
 
 		Exec = append(Exec, output)
-		Succeed = append(Succeed, doesRun)
+		Succeed = append(Succeed, trySuccess)
 
 		// Reverts File back to what user submitted
 		os.WriteFile(file, f, 0644)
 	}
 
-	// // Add newline to temp file
-	// f.Write([]byte("\n"))
-
-	// Get TestCase
-	// tc := "1"
-
-	// for range in amount of parameters
-
-	// out := AddTestCase(tc, file)
-
 	Check(err)
 	out := string(f)
-	fmt.Println(out)
-
-	// for test := range DBQuest.Tests {
-
-	// }
-
-	// fmt.Printf("<%v>\n", out)
-	// f, err = os.ReadFile(file)
-
-	// Check(err)
-	// fmt.Println(DBQuest)
+	// fmt.Println(out)
 
 	pyfunc := GetStringInBetween(string(out), "def ", `(`)
 	correctFuncName = pyfunc == DBQuest.FunctionName
