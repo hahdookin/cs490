@@ -2,7 +2,7 @@
 Distributed 3-layer architecture designed to be a thorough autograder.
 
 ## Demo
-- [Click Here for Demo](https://afsaccess4.njit.edu/~cap82/)
+- [Click Here for Demo](http://exam-central.surge.sh/)
 
 ## :triangular_ruler: Architecture
 ```txt
@@ -23,20 +23,21 @@ Legend:
 ^1      ^2
 
 ^1 - JSON
-^2 - POST (Curl)
+^2 - POST
 ```
 
 ## :microscope: Technologies
-- Languages: `php`, `css`, `html`, `javascript`, `go`
-- Packages: `curl`, `php-curl`, `nginx`
+- Language(s): `html`, `javascript`, `go`, `python`, `css`, `shell (bash)`
+- Package(s): `nginx`
+- Framework(s): `vue`
 
 
 <!-- :heavy_check_mark: vs :x: vs :soon: -->
 | Release Version | Completion
 | :-----:  | :-----:
 | Alpha     | :heavy_check_mark:
-| Beta      | :soon:
-| Release   | :x:
+| Beta      | :heavy_check_mark:
+| Release   | :soon:
 
 
 ## :books: Resources
