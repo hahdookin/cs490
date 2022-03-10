@@ -30,8 +30,8 @@ func SendPostJSON(endpoint string, cd UP) string {
 	return string(body)
 }
 
-func DBGetJSON(endpoint string) DBQuestions {
-	var backendQuest DBQuestions
+func DBGetJSON(endpoint string) DBQuestion {
+	var backendQuest DBQuestion
 	resp, err := http.Get(endpoint)
 	Check(err)
 	defer resp.Body.Close()

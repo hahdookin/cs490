@@ -43,8 +43,6 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 		}
 
-		// var q L.Question
-
 		qid := r.FormValue("qid")
 		code := r.FormValue("code")
 
@@ -57,8 +55,6 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
-
-		// fmt.Fprintf(w, "{\"qid\":\"%s\",\"code\":\"%s\"}", qid, code)
 	default:
 		fmt.Fprintf(w, "POST plz")
 	}
