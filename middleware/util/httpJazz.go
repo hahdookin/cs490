@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -27,4 +28,19 @@ func SendPostJSON(endpoint string, cd UP) string {
 	Check(err)
 
 	return string(body)
+}
+
+func DBGetJSON(endpoint string) DBQuestion {
+	var backendQuest DBQuestion
+	resp, err := http.Get(endpoint)
+	Check(err)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	Check(err)
+
+	err = json.Unmarshal(body, &backendQuest)
+	Check(err)
+
+	return backendQuest
 }

@@ -46,7 +46,15 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 		qid := r.FormValue("qid")
 		code := r.FormValue("code")
 
-		fmt.Fprintf(w, "{\"qid\":\"%s\",\"code\":\"%s\"}", qid, code)
+		q := L.Question{
+			Qid:  qid,
+			Code: code,
+		}
+
+		out := L.FullGrade(w, q)
+
+		enc := json.NewEncoder(w)
+		enc.Encode(out)
 	default:
 		fmt.Fprintf(w, "POST plz")
 	}
@@ -58,6 +66,7 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		L.Check(err)
+
 		var res L.Question
 
 		err = json.Unmarshal(rBody, &res)
@@ -66,13 +75,15 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 		qid := res.Qid
 		code := res.Code
 
-		file := L.CreatePyFile(code, qid)
-		fmt.Fprintf(w, "%v", file)
-		output := L.RunCode(file)
-		fmt.Fprintf(w, "%v", output)
+		question := L.Question{
+			Qid:  qid,
+			Code: code,
+		}
+
+		out := L.FullGrade(w, question)
 
 		enc := json.NewEncoder(w)
-		enc.Encode(res)
+		enc.Encode(out)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
