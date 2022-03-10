@@ -1,15 +1,18 @@
 <template>
     <h3>View Exams</h3>
-    <div v-for="exam in teacherExams" class="exam-item">
+    <div v-if="noexams">
+        <p>No exams assigned...</p>
+    </div>
+    <div v-else v-for="exam in teacherExams" class="exam-item">
         <p>Student: {{ exam.assignee }}</p>
         <p>Exam: {{ exam.exam?.name }}</p>
         <div>
             <p>Status: {{ exam.completed ? 'Completed' : 'Not yet completed' }}</p>
             <div v-if="exam.completed">
-                <button @click="postAutoGrade(exam)" 
-                        :disabled="exam.autograded">AutoGrade</button>
+                <button @click="proceedAutoGrade(exam)" 
+                        :disabled="exam.autograded">{{ autogradeInProgress ? 'In Progress' : 'AutoGrade' }}</button>
                 <button @click="reviewAndSubmitExam(exam.studentExamResult)"
-                        :disabled="!exam.autograded">Review and Submit</button>
+                        :disabled="!exam.autograded && !exam.reviewed">Review and Submit</button>
             </div>
         </div>
     </div>
@@ -19,16 +22,22 @@
 export default {
     name: 'ViewExams',
     inject: [
-        'serialize',
+        'zip',
+        'postToAutograder',
+        'putStudentExamAnswer',
+        'putStudentExamResult',
         'fetchUser',
         'fetchTeacherExams', 
         'fetchExam',
         'fetchStudentExams',
         'fetchStudentExamResult',
+        'fetchStudentExamAnswers',
     ],
     data() {
         return {
             teacherExams: [], // { assigner, assignee, id, examid }
+            noexams: false,
+            autogradeInProgress: false
         };
     },
     async created() {
@@ -36,6 +45,10 @@ export default {
 
         // Get all exams the teacher has assigned
         this.teacherExams = await this.fetchTeacherExams(teacherUserID);
+        if (Object.keys(this.teacherExams).length === 0) {
+            this.noexams = true;
+            return;
+        }
 
         for (const teacherExam of this.teacherExams) {
             const studentUserID = +teacherExam.assigneeid;
@@ -53,6 +66,7 @@ export default {
                 // Find out if the exam has been autograded
                 let studentExamResult = await this.fetchStudentExamResult(studentUserID, teacherExam.examid);
                 teacherExam.autograded = studentExamResult.autograded;
+                teacherExam.reviewed = studentExamResult.reviewed;
                 teacherExam.studentExamResult = studentExamResult;
             }
 
@@ -61,30 +75,38 @@ export default {
         }
     },
     methods: {
-        async postAutoGrade(exam) {
-            console.log("Sending to autograder", exam);
-
-            /* const res = await fetch('http://localhost:5000/') */
-            // make post with { qID and the code } to middle
+        /*
+        {namecorrect: bool, output: [], pass: [], runs: bool}
+        */
+        async proceedAutoGrade(exam) {
+            this.autogradeInProgress = true;
+            const studentUserID = exam.assigneeid;
+            const ser = await this.fetchStudentExamResult(studentUserID, exam.id);
+            const sea = await this.fetchStudentExamAnswers(ser.id);
+            for (const answer of sea) {
+                const res = await this.postToAutograder(answer.questionid, answer.code);
+                answer.runs = res.runs;
+                answer.namecorrect = res.namecorrect;
+                answer.namecorrectpoints = +res.namecorrect; // 1 if true, 0 otherwise
+                for (let i = 0; i < answer.tests.length; i++) {
+                    answer.tests[i].pass = res.pass[i];
+                    answer.tests[i].studentoutput = res.output[i];
+                    answer.tests[i].points *= +res.pass[i];
+                }
+                const res2 = await this.putStudentExamAnswer(answer);
+            }
+            ser.autograded = true;
             exam.autograded = true;
+
+            console.log(ser);
+            const res = await this.putStudentExamResult(ser);
+            console.log(res);
+
+            this.autogradeInProgress = false;
         },
         reviewAndSubmitExam(studentExamResult) {
             const teacherUserID = this.$route.params.userid;
             this.$router.push(`/teacher/${teacherUserID}/reviewexam/${studentExamResult.id}`);
-            /* const payload = { */
-            /*     qid: 2, */
-            /*     code: 'def my_fn(x, y):\n\treturn x + y' */
-            /* }; */
-            /* const res = await fetch('http://ec2-3-136-155-192.us-east-2.compute.amazonaws.com/autograde', { */
-            /*     method: 'post', */
-            /*     headers: { */
-            /*         'Content-type': 'application/x-www-form-urlencoded', */
-            /*     }, */
-            /*     body: serialize(payload) */
-            /* }); */
-            /* const resp = await res.json(); */
-            /* console.log(resp); */
-
         }
     }
 }

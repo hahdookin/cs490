@@ -25,7 +25,7 @@
                  :id="'question' + question.id"
                  @dragstart="dragStart($event, question)">
                 <h3>{{ question.title }}({{question.id}})</h3>
-                <h5>{{ question.difficulty }}</h5>
+                <h5 :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty }}</h5>
                 <p>{{ question.desc }}</p>
                 <p v-for="test in question.tests">
                     <code>
@@ -57,7 +57,7 @@
                  :id="'question' + question.id"
                  @dragstart="dragStart($event, question)">
                 <h3>{{ question.title }}({{question.id}})</h3>
-                <h5>{{ question.difficulty }}</h5>
+                <h5 :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty }}</h5>
                 <p>{{ question.desc }}</p>
                 <p v-for="test of question.tests">
                     <code>
@@ -82,7 +82,7 @@ const examColumn = 2;
 
 export default {
     name: 'ExamCreator',
-    inject: ['fetchQuestions'],
+    inject: ['fetchQuestions', 'postExam'],
     components: {},
     props: {},
     data() {
@@ -136,13 +136,8 @@ export default {
                 name: this.examName,
                 questions: examQuestions,
             };
-            const res = await fetch('http://localhost:5000/exams', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = await this.postExam(payload);
+
             // TODO:Check response
             this.setSuccess(`Successfully created exam: ${this.examName}`);
             this.examName = '';
@@ -158,6 +153,18 @@ export default {
             this.questions.forEach(question => {
                 question.points = 0;
             });
+        },
+        difficultyColor(difficulty) {
+            switch (difficulty) {
+                case 'easy':
+                    return 'green';
+                case 'medium':
+                    return 'orange';
+                case 'hard':
+                    return 'red';
+                default:
+                    return 'black';
+            }
         }
     },
     async created() {

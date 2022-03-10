@@ -20,7 +20,13 @@
 <script>
 export default {
     name: 'AssignExam',
-    inject: ['fetchUserID', 'fetchExams', 'fetchStudentExams'],
+    inject: [
+        'fetchUserID', 
+        'fetchExams', 
+        'fetchStudentExams',
+        'postTeacherExam',
+        'updateStudentExams'
+    ],
     data() {
         return {
             errorMessage: '',
@@ -58,24 +64,14 @@ export default {
                 assigneeid: +studentUserID,
                 examid: this.examID
             };
-            const res = await fetch('http://localhost:5000/teacherexams', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
+            const res = this.postTeacherExam(payload);
 
             // Add to students incompleted exams
             const studentExams = await this.fetchStudentExams(studentUserID);
             studentExams.incompleted.push(this.examID);
-            const res2 = await fetch(`http://localhost:5000/studentexams/${studentExams.id}`, {
-                method: 'put',
-                headers: {
-                    'Content-type': 'application/json',
-                },
-                body: JSON.stringify(studentExams)
-            });
+
+            // Update in the database
+            const res2 = await this.updateStudentExams(studentExams);
 
             // Get exam name
             const name = this.exams.find(e => e.id === this.examID)?.name;

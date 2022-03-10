@@ -1,7 +1,8 @@
 <template>
-    <h1>Review Exam</h1>
+    <h1>View Graded</h1>
     <div v-if="loaded">
         <h1>{{ exam.name }} (ID: {{ exam.id }})</h1>
+        <h1>Score: {{ earnedPoints }}/{{ totalPoints }}</h1>
 
         <div :key="question.id" v-for="(question, i) in questions">
 
@@ -26,6 +27,7 @@
                 </div>
                 <!-- Instructors point column table -->
                 <div class="grades-container">
+                    <!-- Test cases and point assignment -->
                     <table>
                         <tr>
                             <th colspan="2">Runs?</th>
@@ -34,11 +36,8 @@
                         <tr>
                             <th colspan="2">Correct Name?</th>
                             <td colspan="1">{{ question.namecorrect ? "Yes" : "No" }}</td>
-                            <td><input type="number" size="4" :max="1" v-model="question.namecorrectpoints" min="0"></td>
+                            <td><input disabled type="number" size="4" :max="1" v-model="question.namecorrectpoints" min="0"></td>
                         </tr>
-                    </table>
-                    <!-- Test cases and point assignment -->
-                    <table>
                         <tr>
                             <th>Expected</th>
                             <th>Run</th>
@@ -49,19 +48,18 @@
                             <td>{{ testStr(test, question.functionname) }}</td>
                             <td>{{ test.studentoutput }}</td>
                             <td>{{ test.pass ? "Yes" : "No" }}</td>
-                            <td><input type="number" size="4" :max="test.maxpoints" v-model="test.points" min="0"></td>
+                            <td><input disabled type="number" size="4" :max="test.points" v-model="test.points" min="0"></td>
                         </tr>
                     </table>
                     <!-- Instructor comment box -->
                     <div class="comment-box">
                         <p>Comment:</p>
-                        <textarea v-model="question.comment"></textarea>
+                        <textarea disabled>{{ question.comment }}</textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <button @click="onSubmit">Finalize Grades</button>
 </template>
 
 <script>
@@ -75,63 +73,23 @@ export default {
         'fetchStudentExamResult',
         'fetchStudentExamResultByID',
         'fetchStudentExamAnswers',
-        'putStudentExamAnswer',
-        'putStudentExamResult'
     ],
     data() {
         return {
-            teacherUserID: +this.$route.params.userid,
-            studentExamResultID: +this.$route.params.studentexamresultid,
+            studentUserID: this.$route.params.userid,
+            studentExamResultID: this.$route.params.studentexamresultid,
             studentExamResult: {},
             studentExamAnswers: [],
             exam: {},
             questions: [],
             loaded: false,
+            totalPoints: 0,
+            earnedPoints: 0,
         };
     },
     methods: {
-        async onSubmit() {
-            // Get total points awarded
-            let totalPoints = 0;
-            this.questions.forEach(q => {
-                q.tests.forEach(t => {
-                    totalPoints += t.points;
-                });
-                totalPoints += q.namecorrectpoints;
-            });
-
-            // Update studentexamanswer points amount and the comment
-            for (const q of this.questions) {
-                const studentsAnswer = this.studentsAnswer(q.id);
-                for (const [qTest, sTest] of this.zip(q.tests, studentsAnswer.tests)) {
-                    sTest.points = qTest.points;
-                }
-                studentsAnswer.namecorrectpoints = q.namecorrectpoints;
-                studentsAnswer.comment = q.comment;
-            }
-
-            // Set the total points for studentexamresult and mark it reviewed
-            this.studentExamResult.points = totalPoints;
-            this.studentExamResult.autograded = true; // REMOVEME:
-            this.studentExamResult.reviewed = true;
-
-            // Put the studentexamanswers and studentexamresult
-
-            // Put the studentexamanswers
-            for (const sea of this.studentExamAnswers) {
-                const res = await this.putStudentExamAnswer(sea);
-            }
-
-            // Put the studentexamresult
-            const res = await this.putStudentExamResult(this.studentExamResult);
-
-            // Redirect back to home
-            this.$router.push(`/teacher/${this.userid}/`);
-        },
         studentsAnswer(qid) {
-            const answer = this.studentExamAnswers.find(
-                a => a.questionid === qid && a.studentexamresultid === this.studentExamResultID
-            );
+            const answer = this.studentExamAnswers.find(a => a.questionid === qid);
             return answer;
         },
         testStr(test, fname) {
@@ -153,16 +111,22 @@ export default {
                 qTest.pass = sTest.pass;
                 qTest.studentoutput = sTest.studentoutput;
             }
-            const testsCount = question.tests.length;
-            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
-            for (const [qTest, maxPoints] of this.zip(question.tests, pointDist)) {
-                qTest.maxpoints = maxPoints;
-            }
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.comment = studentsAnswer.comment;
         }
+
+        // Get total points
+        // Get earned points
+        this.questions.forEach(q => {
+            this.totalPoints += q.points;
+            q.tests.forEach(t => {
+                // Add points earned from each test case
+                this.earnedPoints += t.points;
+            });
+            this.earnedPoints += q.namecorrectpoints;
+        });
 
         this.loaded = true;
     }

@@ -11,6 +11,7 @@ import ExamCreator from '../views/ExamCreator';
 import QuestionCreator from '../views/QuestionCreator';
 import ViewExam from '../views/ViewExam';
 import ReviewExam from '../views/ReviewExam';
+import ViewGraded from '../views/ViewGraded';
 
 const routes = [
     {
@@ -57,6 +58,10 @@ const routes = [
             {
                 path: 'examlist',
                 component: ExamList
+            },
+            {
+                path: 'viewgraded/:studentexamresultid',
+                component: ViewGraded
             }
         ]
     },

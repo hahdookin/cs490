@@ -1,7 +1,10 @@
 <template>
     <h3>Exams:</h3>
+    <div v-if="noexams">
+        <p>No exams to show!</p>
+    </div>
     <!-- Two column display of exams -->
-    <div class="columns-container">
+    <div v-else class="columns-container">
 
         <!-- Completed exams -->
         <div class="exams-container">
@@ -10,7 +13,7 @@
             </div>
             <div v-for="exam in completedExams" class="exam-item">
                 <div v-if="exam.reviewed">
-                    <p><router-link to="">{{ exam.name }}</router-link></p>
+                    <p><router-link :to="{ path: `/student/${$route.params.userid}/viewgraded/${exam.studentexamresultid}` }">{{ exam.name }}</router-link></p>
                     <p>View Exam</p>
                 </div>
                 <div v-else>
@@ -51,7 +54,8 @@ export default {
             studentExams: {
                 incompleted: [],
                 completed: []
-            }
+            },
+            noexams: false,
         };
     },
     methods: {
@@ -73,6 +77,10 @@ export default {
 
         // Fetch student information
         const studentExams = await this.fetchStudentExams(studentUserID);
+        if (!studentExams || Object.keys(studentExams).length === 0) {
+            this.noexams = true;
+            return;
+        }
         this.studentExams = studentExams;
 
         // Remember the exam IDs
@@ -86,6 +94,7 @@ export default {
             const examInfo = await this.fetchExam(id);
             // Fetch if exam has been reviewed and autograded
             const studentExamResult = await this.fetchStudentExamResult(studentUserID, id);
+            examInfo.studentexamresultid = studentExamResult.id;
             examInfo.reviewed = studentExamResult.reviewed;
             completedInfo.push(examInfo);
         }
