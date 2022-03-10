@@ -30,6 +30,7 @@ func SendPostJSON(endpoint string, cd UP) string {
 	return string(body)
 }
 
+// DBGetJSON: Get's Info from DB and converts it into a DBQuestion Struct
 func DBGetJSON(endpoint string) DBQuestion {
 	var backendQuest DBQuestion
 	resp, err := http.Get(endpoint)

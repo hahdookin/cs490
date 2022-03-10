@@ -36,12 +36,13 @@ func CreatePyFile(code, filename string) string {
 	return file
 }
 
+// RemovePyFile: remove python file
 func RemovePyFile(filename string) {
 	err := os.Remove(filename)
 	Check(err)
 }
 
-// detectOS: detects OS
+// detectOS: detects OS and then gets python path
 func detectOS() string {
 	path := ""
 	os := runtime.GOOS
@@ -58,6 +59,7 @@ func detectOS() string {
 	return path
 }
 
+// RevertFile: reverts file back to some pre-determined state
 func RevertFile(file string, version []byte) {
 }
 
