@@ -18,6 +18,7 @@ const (
 
 // login -> handles login functionality (returns type: student | teacher)
 func login(w http.ResponseWriter, r *http.Request) {
+	L.EnableCors(&w)
 	switch r.Method {
 	case "POST":
 		rBody, err := ioutil.ReadAll(r.Body)
@@ -61,6 +62,7 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 }
 
 func autograde(w http.ResponseWriter, r *http.Request) {
+	L.EnableCors(&w)
 	switch r.Method {
 	case "POST":
 		rBody, err := ioutil.ReadAll(r.Body)

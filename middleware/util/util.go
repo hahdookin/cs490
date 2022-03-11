@@ -2,6 +2,7 @@ package util
 
 import (
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -24,5 +25,8 @@ func GetStringInBetween(str, start, end string) string {
 		log.Fatal("end of string is failing")
 	}
 	return str[s : s+e]
+}
 
+func EnableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
