@@ -7,6 +7,7 @@
         <h3>{{ i + 1 }}) {{ question.title }}</h3> 
         <h5>Points: {{ question.points }}</h5>
         <p>{{ question.desc }}</p>
+        <p>Signature: {{ question.functionname }}({{ question.parameters.join(', ') }})</p>
         <p>Examples:</p>
         <div>
             <p v-for="test in question.tests">
@@ -142,7 +143,8 @@ export default {
         this.questions = await this.fetchQuestionsFromExam(this.examID);
         this.questions.forEach(q => {
             // Have each questions answer box start with the function signature
-            q.code = this.examFunctionSignature(q);
+            //q.code = this.examFunctionSignature(q);
+            q.code = "";
         });
         this.exam = await this.fetchExam(this.examID);
     }

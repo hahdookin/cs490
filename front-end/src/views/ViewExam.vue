@@ -81,8 +81,16 @@ export default {
         async proceedAutoGrade(exam) {
             this.autogradeInProgress = true;
             const studentUserID = exam.assigneeid;
-            const ser = await this.fetchStudentExamResult(studentUserID, exam.id);
+            const ser = await this.fetchStudentExamResult(studentUserID, exam.examid);
+            if (!ser) {
+                console.log("error fetching student exam result", studentUserID, exam.id);
+                return;
+            }
             const sea = await this.fetchStudentExamAnswers(ser.id);
+            if (!sea) {
+                console.log("error fetching student exam answers", ser.id);
+                return;
+            }
             for (const answer of sea) {
                 const res = await this.postToAutograder(answer.questionid, answer.code);
                 answer.runs = res.runs;

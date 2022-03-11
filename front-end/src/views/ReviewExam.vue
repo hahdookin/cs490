@@ -8,6 +8,7 @@
             <!-- Question info -->
             <h3>{{ i + 1 }}) {{ question.title }}</h3>
             <h5>Points: {{ question.points }}</h5>
+            <p>Signature: {{ question.functionname }}({{ question.parameters.join(', ') }})</p>
             <p>{{ question.desc }}</p>
             <p>Examples:</p>
             <div>
