@@ -4,27 +4,11 @@
     <div :key="question.id" v-for="(question, i) in questions">
 
         <!-- Question info --> 
-        <h3>{{ i + 1 }}) {{ question.title }}</h3> 
-        <h5>Points: {{ question.points }}</h5>
-        <p>{{ question.desc }}</p>
-        <p>Examples:</p>
-        <div>
-            <p v-for="test in question.tests">
-            <code>
-            {{question.functionname}}({{test.arguments.join(',')}}) -&gt; {{test.output}}
-            </code>
-            </p>
-        </div>
+        <QuestionDescription :question="question" :number="i + 1"/>
 
         <!-- Student answer section -->
-        <textarea 
-            @keydown="onKeydown($event)"
-            v-model="question.code"
-            rows="20"
-            cols="60"
-            autocapitalize="off" 
-            spellcheck="false" 
-            contenteditable="true">{{ question.code }}</textarea>
+        <AnswerBox :question="question" @student-input="handleStudentInput"/>
+
     </div>
 
     <button @click="onSubmit">Submit Exam</button>
@@ -32,6 +16,9 @@
 </template>
 
 <script>
+import QuestionDescription from '../components/QuestionDescription';
+import AnswerBox from '../components/AnswerBox';
+
 export default {
     name: 'Exam',
     inject: [
@@ -45,7 +32,10 @@ export default {
         'postStudentExamAnswer',
         'updateStudentExams',
     ],
-    components: {},
+    components: {
+        QuestionDescription,
+        AnswerBox
+    },
     /* emits: ['student-exam-active'], */
     data() {
         return {
@@ -122,27 +112,16 @@ export default {
                 total += question.points;
             return total;
         },
-        onKeydown(e) {
-            if (e.key == 'Tab') {
-                const tar = e.target;
-                e.preventDefault();
-                var start = tar.selectionStart;
-                var end = tar.selectionEnd;
-
-                // set textarea value to: text before caret + tab + text after caret
-                tar.value = tar.value.substring(0, start) +
-                "\t" + tar.value.substring(end);
-
-                // put caret at right position again
-                tar.selectionStart = tar.selectionEnd = start + 1;
-            }
+        handleStudentInput(input, question) {
+            question.code = input;
         }
     },
     async created() {
         this.questions = await this.fetchQuestionsFromExam(this.examID);
         this.questions.forEach(q => {
             // Have each questions answer box start with the function signature
-            q.code = this.examFunctionSignature(q);
+            //q.code = this.examFunctionSignature(q);
+            q.code = "";
         });
         this.exam = await this.fetchExam(this.examID);
     }

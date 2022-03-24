@@ -9,7 +9,7 @@ middleware/*.py
 
 .DS_Store
 node_modules
-/dist
+front-end/dist
 
 # local env files
 .env.local

@@ -1,12 +1,10 @@
 <template>
     <h3>Question Creator</h3>
-    <!-- A Question has the following required elements: -->
-    <!-- - Title -> Title of the question -->
-    <!-- - Desc -> A short description of the problem -->
-    <!-- - Difficulty -> The problems difficulty: one of 3 options -->
-    <!-- - Function Name -> Name of the function -->
-    <!-- - Parameters -> Up to X parameters -->
-    <!-- - Examples -> Up to X examples -->
+
+    <div class="two-column-container">
+    <div class="single-column-container">
+
+    <div class="single-column-item">
     <form name="questioncreatorform" 
           id="questioncreatorform" 
           @submit="onSubmit">
@@ -25,6 +23,16 @@
                   rows="3" 
                   cols="50" 
                   required></textarea><br>
+
+        <!-- Category -->
+        <label for="category">Category</label>
+        <select v-model="category" name="category" required>
+            <option value="for">For Loops</option>
+            <option value="while">While Loops</option>
+            <option value="recursion">Recursion</option>
+            <option value="if">If Statements</option>
+            <option value="misc">Miscellaneous</option>
+        </select><br>
 
         <!-- Difficulty -->
         <label for="difficulty">Difficulty</label>
@@ -74,11 +82,12 @@
         <button @click.prevent="addTest">Add Test</button>
         <button @click.prevent="removeTest">Remove Test</button>
 
-        <!-- DEBUG REMOVE ME -->
+
+        <!-- DEBUG REMOVEME -->
         <div>
             <p>Params: {{ parameters.toString() }}</p>
             <p>Tests: </p>
-            <div v-for="(test, i) in tests">
+            <div v-for="test in tests">
                 <p>({{ test.arguments.toString() }}) -> {{ test.output }}</p>
             </div>
         </div>
@@ -89,6 +98,19 @@
             <p :style="{ color: success ? 'green' : 'red' }">{{ errorMessage }}</p>
         </div>
     </form>
+    </div> <!-- single-item -->
+
+    </div> <!-- single-container -->
+
+        <!-- TODO: Implement the filter for checking question bank -->
+        <div class="single-column-container">
+            <div class="single-column-item">
+                <p>Query: </p>
+            </div>
+        </div>
+
+    </div> <!-- two-container -->
+
 </template>
 
 <script>
@@ -102,6 +124,7 @@ export default {
             success: false,
             title: '',
             desc: '',
+            category: 'misc',
             difficulty: 'easy',
             functionname: '',
             parameters: [],
@@ -125,6 +148,7 @@ export default {
             const payload = {
                 title: this.title,
                 desc: this.desc,
+                category: this.category,
                 difficulty: this.difficulty,
                 functionname: this.functionname,
                 parameters: this.parameters,

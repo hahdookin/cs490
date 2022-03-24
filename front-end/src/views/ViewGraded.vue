@@ -7,64 +7,42 @@
         <div :key="question.id" v-for="(question, i) in questions">
 
             <!-- Question info -->
-            <h3>{{ i + 1 }}) {{ question.title }}</h3>
-            <h5>Points: {{ question.points }}</h5>
-            <p>{{ question.desc }}</p>
-            <p>Examples:</p>
-            <div>
-                <p v-for="test in question.tests">
-                <code>
-                {{ testStr(test, question.functionname) }}
-                </code>
-                </p>
-            </div>
+            <QuestionDescription :question="question" :number="i + 1"/>
 
             <!-- Student answer and point selector -->
-            <div class="columns-container">
+            <div class="two-column-container">
                 <!-- Students answer -->
-                <div class="grades-container">
-                    <textarea class="grade-item" disabled="true" rows="20" cols="60">{{ studentsAnswer(question.id).code }}</textarea>
+                <div class="single-column-container">
+                    <AnswerBox class="single-column-item" 
+                               disabled 
+                               :content="studentsAnswer(question.id).code"/>
                 </div>
-                <!-- Instructors point column table -->
-                <div class="grades-container">
-                    <!-- Test cases and point assignment -->
-                    <table>
-                        <tr>
-                            <th colspan="2">Runs?</th>
-                            <td colspan="1">{{ question.runs ? "Yes" : "No" }}</td>
-                        </tr>
-                        <tr>
-                            <th colspan="2">Correct Name?</th>
-                            <td colspan="1">{{ question.namecorrect ? "Yes" : "No" }}</td>
-                            <td><input disabled type="number" size="4" :max="1" v-model="question.namecorrectpoints" min="0"></td>
-                        </tr>
-                        <tr>
-                            <th>Expected</th>
-                            <th>Run</th>
-                            <th>Pass?</th>
-                            <th>Points</th>
-                        </tr>
-                        <tr v-for="test in question.tests">
-                            <td>{{ testStr(test, question.functionname) }}</td>
-                            <td>{{ test.studentoutput }}</td>
-                            <td>{{ test.pass ? "Yes" : "No" }}</td>
-                            <td><input disabled type="number" size="4" :max="test.points" v-model="test.points" min="0"></td>
-                        </tr>
-                    </table>
-                    <!-- Instructor comment box -->
-                    <div class="comment-box">
-                        <p>Comment:</p>
-                        <textarea disabled>{{ question.comment }}</textarea>
-                    </div>
+
+                <!-- Point distribution table -->
+                <div class="single-column-container">
+                    <PointTable disabled class="single-column-item" :question="question"/>
+                    <CommentBox disabled class="single-column-item" :question="question"/>
                 </div>
+
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import PointTable from '../components/PointTable';
+import AnswerBox from '../components/AnswerBox';
+import QuestionDescription from '../components/QuestionDescription';
+import CommentBox from '../components/CommentBox';
+
 export default {
     name: 'ReviewExam',
+    components: {
+        PointTable,
+        AnswerBox,
+        QuestionDescription,
+        CommentBox
+    },
     inject: [
         'zip',
         'split',
@@ -143,41 +121,6 @@ body {
     color: white;
 }
 
-.grades-container {
-    background-color: #344;
-    padding: 1rem;
-    margin-top: 1rem;
-    flex: 1;
-}
-
-.grade-item {
-    padding: 1rem;
-    background-color: white;
-    border: 1px solid blue;
-}
-
-.columns-container {
-    display: flex;
-    justify-content: safe center;
-    /* justify-content: right; /1* REMOVE ME *1/ */
-    width: 75%;
-    margin: 0 auto;
-    max-width: 1000px;
-}
-
-.comment-box {
-    background-color: white;
-    padding: 10px;
-}
-
-table {
-    background-color: white;
-    width: 100%;
-    border: 1px solid black;
-}
-th, tr, td {
-    border: 1px solid black;
-}
 </style>
 
 

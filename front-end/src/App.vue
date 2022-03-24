@@ -1,12 +1,15 @@
 <template>
-    <Header :userInfo="userInfo" 
+    <Header :user-info="userInfo" 
             @user-logged-in="handleUserLogin" 
             @user-logged-out="handleUserLogout"
             title="Exam Central"/>
 
+    <button @click="janeLogin">Jane</button>
+    <button @click="johnLogin">John</button>
+
     <div v-if="userIsLoggedIn">
         <router-view></router-view>
-        <Footer :userInfo="userInfo" />
+        <Footer :user-info="userInfo" />
     </div>
 </template>
 
@@ -43,6 +46,20 @@ export default {
         }
     },
     methods: {
+        janeLogin() {
+            this.handleUserLogin({
+                username: 'jane',
+                type: 'teacher',
+                userid: 1
+            });
+        },
+        johnLogin() {
+            this.handleUserLogin({
+                username: 'john',
+                type: 'student',
+                userid: 2
+            });
+        },
         handleUserLogin(info) {
             this.userInfo = info;
             this.$router.push(`/${this.userInfo.type}/${this.userInfo.userid}`);
@@ -59,6 +76,22 @@ export default {
 </script>
 
 <style>
+/**
+ * Variables
+ */
+:root {
+    --hl-bg: #1E1E1E;
+    --hl-fg: #D4D4D4;
+    --hl-function: #D7BA7D;
+    --hl-string: #CE9178;
+    --hl-number: #B5CEA8;
+    --hl-keyword: #C586C0;
+    /* --hl-function: #444; /1* color07 *1/ */
+    /* --hl-string: #5f8700; /1* color03 *1/ */
+    /* --hl-number: #d75f00; /1* color13 *1/ */
+    /* --hl-keyword: #8700af; /1* color11 *1/ */
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -67,4 +100,32 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+/**
+ * Styling for two-column displays
+ */
+/* Two column */
+.two-column-container {
+    display: flex;
+    justify-content: safe center;
+    width: 75%;
+    margin: 0 auto;
+    max-width: 800px;
+}
+/* Single column */
+.single-column-container {
+    background-color: #344;
+    padding: 1rem;
+    margin-top: 1rem;
+    flex: 1;
+}
+
+/* Single item within column */
+.single-column-item {
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid blue;
+}
+
+
 </style>
