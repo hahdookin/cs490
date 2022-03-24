@@ -38,4 +38,4 @@ def operation(op, a, b):
         - Worth
         - Autograde
         - Override 
-        - Color
+        - Color 
