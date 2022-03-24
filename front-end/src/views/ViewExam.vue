@@ -1,8 +1,10 @@
 <template>
     <h3>View Exams</h3>
+
     <div v-if="noexams">
         <p>No exams assigned...</p>
     </div>
+
     <div v-else v-for="exam in teacherExams" class="exam-item">
         <p>Student: {{ exam.assignee }}</p>
         <p>Exam: {{ exam.exam?.name }}</p>
@@ -10,12 +12,13 @@
             <p>Status: {{ exam.completed ? 'Completed' : 'Not yet completed' }}</p>
             <div v-if="exam.completed">
                 <button @click="proceedAutoGrade(exam)" 
-                        :disabled="exam.autograded">{{ autogradeInProgress ? 'In Progress' : 'AutoGrade' }}</button>
+                        :disabled="exam.autograded">{{ autogradeStatus }}</button>
                 <button @click="reviewAndSubmitExam(exam.studentExamResult)"
                         :disabled="!exam.autograded && !exam.reviewed">Review and Submit</button>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -115,6 +118,11 @@ export default {
         reviewAndSubmitExam(studentExamResult) {
             const teacherUserID = this.$route.params.userid;
             this.$router.push(`/teacher/${teacherUserID}/reviewexam/${studentExamResult.id}`);
+        }
+    },
+    computed: {
+        autogradeStatus() {
+            return this.autogradeInProgress ? 'In Progress' : 'AutoGrade';
         }
     }
 }

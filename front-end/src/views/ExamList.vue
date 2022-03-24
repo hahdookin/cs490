@@ -4,14 +4,14 @@
         <p>No exams to show!</p>
     </div>
     <!-- Two column display of exams -->
-    <div v-else class="columns-container">
+    <div v-else class="two-column-container">
 
         <!-- Completed exams -->
-        <div class="exams-container">
+        <div class="single-column-container">
             <div>
                 <h3 class="column-title">COMPLETED</h3>
             </div>
-            <div v-for="exam in completedExams" class="exam-item">
+            <div v-for="exam in completedExams" class="single-column-item">
                 <div v-if="exam.reviewed">
                     <p><router-link :to="{ path: `/student/${$route.params.userid}/viewgraded/${exam.studentexamresultid}` }">{{ exam.name }}</router-link></p>
                     <p>View Exam</p>
@@ -24,11 +24,11 @@
         </div>
 
         <!-- Incompleted exams -->
-        <div class="exams-container">
+        <div class="single-column-container">
             <div>
                 <h3 class="column-title">INCOMPLETED</h3>
             </div>
-            <div v-for="exam in incompletedExams" class="exam-item">
+            <div v-for="exam in incompletedExams" class="single-column-item">
                 <p><router-link @click="emitExamStarted" :to="{ path: `/student/${$route.params.userid}/exam/${exam.id}`}">{{ exam.name }}</router-link></p>
             </div>
         </div>

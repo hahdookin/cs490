@@ -5,38 +5,68 @@
 
     <p>Total Points: {{ totalPoints }}</p>
 
+    <!-- Bank filter form -->
+    <h4>Bank Filter</h4>
+    <div class="row" style="padding-bottom: 5px;border: 1px solid black">
+
+        <div class="column">
+            <h5>Difficulty</h5>
+            <div class="filter-selection">
+                <label>Easy: </label>
+                <input type="checkbox" v-model="filters.difficulty.easy">
+                <br>
+                <label>Medium: </label>
+                <input type="checkbox" v-model="filters.difficulty.medium">
+                <br>
+                <label>Hard: </label>
+                <input type="checkbox" v-model="filters.difficulty.hard">
+                <br>
+            </div>
+        </div>
+
+        <div class="column">
+            <h5>Category</h5>
+            <div class="filter-selection">
+                <label>For Loops: </label>
+                <input type="checkbox" v-model="filters.category.forloop">
+                <br>
+                <label>While Loops: </label>
+                <input type="checkbox" v-model="filters.category.whileloop">
+                <br>
+                <label>If Statement: </label>
+                <input type="checkbox" v-model="filters.category.ifstmt">
+                <br>
+                <label>Recursion: </label>
+                <input type="checkbox" v-model="filters.category.recursion">
+                <br>
+            </div>
+        </div>
+
+        <div class="column">
+            <h5>Keyword Search</h5>
+            <input type="text" v-model="filters.keyword">
+        </div>
+
+    </div>
+
     <!-- Here is where the drag-and-drop exam creation happens -->
-    <div class="exam-creator-container">
+    <div class="two-column-container">
 
         <!-- Questions to be added to exam column -->
         <div @drop="onDrop($event, 2)" 
              @dragover.prevent
              @dragenter.prevent
-             class="questions-container">
+             class="single-column-container">
 
              <div>
-             <h3 class="column-title">EXAM</h3>
+                 <h3 class="column-title">EXAM</h3>
              </div>
 
-            <div :key="question.id" 
-                 v-for="question in examList"
-                 draggable="true"
-                 class="question-item" 
-                 :id="'question' + question.id"
-                 @dragstart="dragStart($event, question)">
-                <h3>{{ question.title }}({{question.id}})</h3>
-                <h5 :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty }}</h5>
-                <p>{{ question.desc }}</p>
-                <p v-for="test in question.tests">
-                    <code>
-                    {{ question.functionname }}
-                    ({{ test.arguments.join(", ") }}) -&gt; {{ test.output }}
-                    </code>
-                </p>
-                <label>Points: </label>
-                <!-- TODO: Handle invalid numeric input -->
-                <input v-model="question.points" type="number" min="0">
-            </div>
+            <ExamCreatorItem v-for="question in examList" 
+                             :question="question"
+                             class="single-column-item moveable"
+                             @dragstart="dragStart($event, question)"
+                             show-points-input/>
 
          </div>
     
@@ -44,29 +74,16 @@
         <div @drop="onDrop($event, 1)" 
              @dragover.prevent
              @dragenter.prevent
-             class="questions-container">
+             class="single-column-container">
 
              <div>
-             <h3 class="column-title">BANK</h3>
+                 <h3 class="column-title">BANK</h3>
              </div>
 
-            <div :key="question.id" 
-                 v-for="question in bankList" 
-                 draggable="true"
-                 class="question-item" 
-                 :id="'question' + question.id"
-                 @dragstart="dragStart($event, question)">
-                <h3>{{ question.title }}({{question.id}})</h3>
-                <h5 :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty }}</h5>
-                <p>{{ question.desc }}</p>
-                <p v-for="test of question.tests">
-                    <code>
-                    {{ question.functionname }}
-                    ({{ test.arguments.join(", ") }}) -&gt; {{ test.output }}
-                    </code>
-                </p>
-            </div>
-
+            <ExamCreatorItem v-for="question in bankList" 
+                             :question="question"
+                             @dragstart="dragStart($event, question)"
+                             class="single-column-item moveable"/>
         </div>
 
     </div>
@@ -77,20 +94,42 @@
 </template>
 
 <script>
+import ExamCreatorItem from "../components/ExamCreatorItem";
+
 const bankColumn = 1;
 const examColumn = 2;
 
 export default {
     name: 'ExamCreator',
     inject: ['fetchQuestions', 'postExam'],
-    components: {},
-    props: {},
+    components: {
+        ExamCreatorItem
+    },
     data() {
         return {
+            filters: {
+                difficulty: {
+                    easy: true,
+                    medium: true,
+                    hard: true,
+                },
+                category: {
+                    forloop: true,
+                    whileloop: true,
+                    ifstmt: true,
+                    recursion: true,
+                },
+                contraint: {
+                    forloop: true,
+                    whileloop: true,
+                    recursion: true,
+                },
+                keyword: "",
+            },
             examName: '',
             questions: [],
             errorMessage: "",
-            success: false
+            success: false,
         };
     },
     methods: {
@@ -193,36 +232,35 @@ export default {
 </script>
 
 <style scoped>
+.row {
+    display: flex;
+    justify-content: safe center;
+    width: 75%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.column {
+    flex: 50%;
+    text-align: center;
+}
+.column > input[type="text"]  {
+    width: 75%;
+}
+
+
+.filter-selection {
+    text-align: right;
+    display: inline-block;
+}
+
 body {
     margin: 0;
 }
 .column-title {
     color: white;
 }
-
-.questions-container {
-    background-color: #344;
-    padding: 1rem;
-    margin-top: 1rem;
-    flex: 1;
-}
-
-.question-item {
-    padding: 1rem;
-    background-color: white;
+.moveable {
     cursor: move;
-    border: 1px solid blue;
 }
 
-.exam-creator-container {
-    display: flex;
-    justify-content: safe center;
-    width: 75%;
-    margin: 0 auto;
-    max-width: 800px;
-}
-
-.invisible {
-    display: none;
-}
 </style>
