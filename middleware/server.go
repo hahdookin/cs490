@@ -20,17 +20,17 @@ const (
 func login(w http.ResponseWriter, r *http.Request) {
 	L.EnableCors(&w)
 	switch r.Method {
-	case "POST":
-		rBody, err := ioutil.ReadAll(r.Body)
-		defer r.Body.Close()
-		L.Check(err)
-		var clientData L.UP
+	// case "POST":
+	// 	rBody, err := ioutil.ReadAll(r.Body)
+	// 	defer r.Body.Close()
+	// 	L.Check(err)
+	// 	var clientData L.UP
 
-		err = json.Unmarshal(rBody, &clientData)
-		L.Check(err)
+	// 	err = json.Unmarshal(rBody, &clientData)
+	// 	L.Check(err)
 
-		resp := L.SendPostJSON(BACKEND, clientData)
-		fmt.Fprintf(w, "%v", resp)
+	// 	resp := L.SendPostJSON(BACKEND, clientData)
+	// 	fmt.Fprintf(w, "%v", resp)
 
 	default:
 		fmt.Fprintf(w, "POST plz")
