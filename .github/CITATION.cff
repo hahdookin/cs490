@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- "@hahdookin"
+- "@aorps"
+- "@gabormond"
+title: "Distributed testing/evaluation service for coding in Python"
+version: "Release"
+url: "https://github.com/hahdookin/cs490"

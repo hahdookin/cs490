@@ -1,3 +1,4 @@
+[![Go Report Card - Middleware](https://goreportcard.com/badge/github.com/AOrps/cs490/middleware)](https://goreportcard.com/report/github.com/AOrps/cs490/middleware)
 # cs490
 Distributed 3-layer architecture designed to be a thorough autograder.
 

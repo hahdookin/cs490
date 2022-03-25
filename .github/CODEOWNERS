@@ -1,0 +1,14 @@
+# Default Owners
+*   @hahdookin @aorps @gabormond
+
+
+# Front-end Owners
+/front-end/ @hahdookin
+
+# Middleware Owners
+/middleware/ @aorps
+
+# Back-end Owners
+/back-end/ @gabormond
+
+# SRC: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners

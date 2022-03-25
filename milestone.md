@@ -39,3 +39,19 @@ def operation(op, a, b):
         - Autograde
         - Override 
         - Color 
+
+---
+## New Stuff
+
+- [ ] Constraints (for, while, recursion)
+    - Bonus: Comment preprocessing (NOT GRADED)
+
+- [ ] Split-Screen (Filter by topic, keyword, difficulty)
+- To make questions from bank
+
+- [x] Show points to students (how much each question is worth)
+    - BONUS: mini-maps to show where questions (follow around)
+
+- [x] Autograder -> One table for each student questions
+
+- [x] Student seeing the result 
