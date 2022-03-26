@@ -1,7 +1,6 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,7 +19,6 @@ type Question struct {
 }
 
 type Ret struct {
-	Runs        bool     `json:"runs"`        // if python file runs
 	NameCorrect bool     `json:"namecorrect"` // if function name is correct
 	Output      []string `json:"output"`      // output[i: i in range(tests)]
 	Pass        []bool   `json:"pass"`        // pass[i: i in range(tests)]
@@ -62,10 +60,6 @@ func detectOS() string {
 	}
 
 	return path
-}
-
-// RevertFile: reverts file back to some pre-determined state
-func RevertFile(file string, version []byte) {
 }
 
 // AddTestCase: adds a test case to the end of the file
@@ -127,10 +121,9 @@ func RunCode(file, validate string) (string, bool) {
 // FullGrade: does all the autograde stuff
 func FullGrade(w http.ResponseWriter, q Question) Ret {
 
-	var doesRun, correctFuncName bool
+	var correctFuncName bool
 	var Exec []string
 	var Succeed []bool
-	var runOut bytes.Buffer
 
 	endpoint := fmt.Sprintf("%s/questions/%s", ENDPOINT, q.Qid)
 	DBQuest := DBGetJSON(endpoint)
@@ -142,41 +135,27 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	f, err := os.ReadFile(file)
 	Check(err)
 
-	// TODO: get error code
-	cmd := exec.Command(detectOS(), file)
-	cmd.Stdout = &runOut
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("err: %v\n", err)
-		doesRun = false
-	} else {
-		fmt.Printf("err: %v\n", err)
-		doesRun = true
-	}
-	fmt.Printf("%q\n", runOut.String())
+	// iterates thru test cases, runs it and then reverts
+	for _, test := range DBQuest.Tests {
 
-	if doesRun {
-		// iterates thru test cases, runs it and then reverts
-		for _, test := range DBQuest.Tests {
+		AddTestCase(file, test.Arguments)
+		validate := test.Output
+		output, trySuccess := RunCode(file, validate)
 
-			AddTestCase(file, test.Arguments)
-			validate := test.Output
-			output, trySuccess := RunCode(file, validate)
+		// fmt.Printf("output: %s", output)
+		// fmt.Printf("trySuccess: %v", trySuccess)
+		// fmt.Printf("output: %s")
 
-			// fmt.Printf("output: %s", output)
-			// fmt.Printf("trySuccess: %v", trySuccess)
-			// fmt.Printf("output: %s")
+		// To Print out stuff uncomment lines below
+		// g, err := os.ReadFile(file)
+		// Check(err)
+		// fmt.Println(string(g))
 
-			// To Print out stuff uncomment lines below
-			// g, err := os.ReadFile(file)
-			// Check(err)
-			// fmt.Println(string(g))
+		Exec = append(Exec, output)
+		Succeed = append(Succeed, trySuccess)
 
-			Exec = append(Exec, output)
-			Succeed = append(Succeed, trySuccess)
-
-			// Reverts File back to what user submitted
-			os.WriteFile(file, f, 0644)
-		}
+		// Reverts File back to what user submitted
+		os.WriteFile(file, f, 0644)
 	}
 	Check(err)
 	out := string(f)
@@ -185,12 +164,9 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	pyfunc := GetStringInBetween(string(out), "def ", `(`)
 	correctFuncName = pyfunc == DBQuest.FunctionName
 
-	// fmt.Printf("%v: %v\n", pyfunc, output)
 	RemovePyFile(file)
 
-	// fmt.Fprintf(w, "%v", output)
 	return Ret{
-		Runs:        doesRun,
 		NameCorrect: correctFuncName,
 		Output:      Exec,
 		Pass:        Succeed,

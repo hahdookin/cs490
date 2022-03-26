@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	PORT    = 8087
+	PORT    = 8080
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
 
 // login -> handles login functionality (returns type: student | teacher)
 func login(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w)
+	L.EnableCors(&w, r)
 	switch r.Method {
 	// case "POST":
 	// 	rBody, err := ioutil.ReadAll(r.Body)
@@ -62,7 +62,10 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 }
 
 func autograde(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w)
+	L.EnableCors(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
 	switch r.Method {
 	case "POST":
 		rBody, err := ioutil.ReadAll(r.Body)
