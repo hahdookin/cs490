@@ -142,10 +142,6 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		validate := test.Output
 		output, trySuccess := RunCode(file, validate)
 
-		// fmt.Printf("output: %s", output)
-		// fmt.Printf("trySuccess: %v", trySuccess)
-		// fmt.Printf("output: %s")
-
 		// To Print out stuff uncomment lines below
 		// g, err := os.ReadFile(file)
 		// Check(err)

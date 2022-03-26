@@ -46,3 +46,4 @@ Legend:
 - [AFS Permissions](https://ist.njit.edu/afs-permissions)
 - [Reverse Proxy Golang Web App using Nginx on Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-go-web-application-using-nginx-on-ubuntu-18-04)
 - [Enable CORS on Golang](https://flaviocopes.com/golang-enable-cors/)
+- [Enable CORS on Nginx](https://enable-cors.org/server_nginx.html)
