@@ -62,6 +62,11 @@ func detectOS() string {
 	return path
 }
 
+// commentPreprocessing: eliminates single-line & multi-line comments
+func commentPreprocessing(original string) string {
+	return original
+}
+
 // AddTestCase: adds a test case to the end of the file
 func AddTestCase(file string, args []string) {
 
