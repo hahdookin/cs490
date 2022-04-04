@@ -8,7 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
-	L "github.com/AOrps/cs490/middleware/util"
+	auto "github.com/AOrps/cs490/middleware/autograde"
+	util "github.com/AOrps/cs490/middleware/util"
 )
 
 const (
@@ -26,12 +27,12 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 		qid := r.FormValue("qid")
 		code := r.FormValue("code")
 
-		q := L.Question{
+		q := auto.Question{
 			Qid:  qid,
 			Code: code,
 		}
 
-		out := L.FullGrade(w, q)
+		out := auto.FullGrade(w, q)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -41,30 +42,27 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 }
 
 func autograde(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w, r)
-	if (*r).Method == "OPTIONS" {
-		return
-	}
+	util.EnableCors(&w, r)
 	switch r.Method {
 	case "POST":
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
-		L.Check(err)
+		util.Check(err)
 
-		var res L.Question
+		var res auto.Question
 
 		err = json.Unmarshal(rBody, &res)
-		L.Check(err)
+		util.Check(err)
 
 		qid := res.Qid
 		code := res.Code
 
-		question := L.Question{
+		question := auto.Question{
 			Qid:  qid,
 			Code: code,
 		}
 
-		out := L.FullGrade(w, question)
+		out := auto.FullGrade(w, question)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -78,7 +76,6 @@ func main() {
 	port := strconv.Itoa(PORT)
 
 	// handler
-	http.HandleFunc("/", login)
 	http.HandleFunc("/autograde", autograde)
 	http.HandleFunc("/cringe", cringe)
 
@@ -87,6 +84,6 @@ func main() {
 
 	// start Server at port
 	err := http.ListenAndServe(":"+port, nil)
-	L.Check(err)
+	util.Check(err)
 
 }

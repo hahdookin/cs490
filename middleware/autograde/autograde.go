@@ -1,4 +1,4 @@
-package util
+package autograde
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+
+	U "github.com/AOrps/cs490/middleware/util"
 )
 
 var (
@@ -29,11 +31,11 @@ func CreatePyFile(code, filename string) string {
 	file := fmt.Sprintf("%s.py", filename)
 	// creates a python3 file
 	f, err := os.Create(file)
-	Check(err)
+	U.Check(err)
 
 	// Writes code into file
 	_, err = f.Write([]byte(code))
-	Check(err)
+	U.Check(err)
 
 	f.Close()
 	return file
@@ -42,7 +44,7 @@ func CreatePyFile(code, filename string) string {
 // RemovePyFile: remove python file
 func RemovePyFile(filename string) {
 	err := os.Remove(filename)
-	Check(err)
+	U.Check(err)
 }
 
 // detectOS: detects OS and then gets python path
@@ -75,19 +77,19 @@ func commentPreprocessing(original string) string {
 func AddTestCase(file string, args []string) {
 
 	data, err := os.ReadFile(file)
-	Check(err)
-	pyfunc := GetStringInBetween(string(data), "def ", `(`)
+	U.Check(err)
+	pyfunc := U.GetStringInBetween(string(data), "def ", `(`)
 
 	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	Check(err)
+	U.Check(err)
 
 	defer f.Close()
 
 	_, err = f.WriteString("\n")
-	Check(err)
+	U.Check(err)
 
 	_, err = f.WriteString(fmt.Sprintf("print(%s(", pyfunc))
-	Check(err)
+	U.Check(err)
 
 	for i, arg := range args {
 		_, err := strconv.Atoi(arg)
@@ -96,24 +98,24 @@ func AddTestCase(file string, args []string) {
 
 			if i < len(args)-1 {
 				_, err = f.WriteString(fmt.Sprintf("%s,", strVar))
-				Check(err)
+				U.Check(err)
 			} else {
 				_, err = f.WriteString(strVar)
-				Check(err)
+				U.Check(err)
 			}
 		} else {
 			if i < len(args)-1 {
 				_, err = f.WriteString(fmt.Sprintf("%s,", arg))
-				Check(err)
+				U.Check(err)
 			} else {
 				_, err = f.WriteString(arg)
-				Check(err)
+				U.Check(err)
 			}
 		}
 	}
 
 	_, err = f.WriteString("), end=\"\")")
-	Check(err)
+	U.Check(err)
 }
 
 // RunCode: run a python file in golang
@@ -135,14 +137,14 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	var Succeed []bool
 
 	endpoint := fmt.Sprintf("%s/questions/%s", ENDPOINT, q.Qid)
-	DBQuest := DBGetJSON(endpoint)
+	DBQuest := U.DBGetJSON(endpoint)
 
 	// creates temp py file
 	file := CreatePyFile(q.Code, q.Qid)
 
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
-	Check(err)
+	U.Check(err)
 
 	// iterates thru test cases, runs it and then reverts
 	for _, test := range DBQuest.Tests {
@@ -153,7 +155,7 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 
 		// To Print out stuff uncomment lines below
 		// g, err := os.ReadFile(file)
-		// Check(err)
+		// U.Check(err)
 		// fmt.Println(string(g))
 
 		Exec = append(Exec, output)
@@ -162,11 +164,11 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		// Reverts File back to what user submitted
 		os.WriteFile(file, f, 0644)
 	}
-	Check(err)
+	U.Check(err)
 	out := string(f)
 	// fmt.Println(out)
 
-	pyfunc := GetStringInBetween(string(out), "def ", `(`)
+	pyfunc := U.GetStringInBetween(string(out), "def ", `(`)
 	correctFuncName = pyfunc == DBQuest.FunctionName
 
 	RemovePyFile(file)
