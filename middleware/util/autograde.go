@@ -1,7 +1,6 @@
 package util
 
 import (
-	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"os"
@@ -68,8 +67,6 @@ func commentPreprocessing(original string) string {
 
 	// remove single line comments with # start
 	// remove multi-line commments
-
-	subtle.ConstantTimeByteEq()
 
 	return original
 }
