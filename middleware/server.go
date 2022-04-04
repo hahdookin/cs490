@@ -16,27 +16,6 @@ const (
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
 
-// login -> handles login functionality (returns type: student | teacher)
-func login(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w, r)
-	switch r.Method {
-	// case "POST":
-	// 	rBody, err := ioutil.ReadAll(r.Body)
-	// 	defer r.Body.Close()
-	// 	L.Check(err)
-	// 	var clientData L.UP
-
-	// 	err = json.Unmarshal(rBody, &clientData)
-	// 	L.Check(err)
-
-	// 	resp := L.SendPostJSON(BACKEND, clientData)
-	// 	fmt.Fprintf(w, "%v", resp)
-
-	default:
-		fmt.Fprintf(w, "POST plz")
-	}
-}
-
 func cringe(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
