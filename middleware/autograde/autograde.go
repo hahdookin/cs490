@@ -2,7 +2,6 @@ package autograde
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -74,11 +73,6 @@ func CommentPreprocessing(original string) string {
 
 	var res string
 
-	file, err := os.Open(original)
-	U.Check(err)
-
-	fmt.Println(file)
-
 	// remove single line comments
 	// start: #  &&  end: \n
 	singleLine := regexp.MustCompile(`#.*\n`)
@@ -124,7 +118,6 @@ func findConstraint(fName, constraint string) bool {
 			return true
 		}
 	default:
-		log.Fatalf("error: how? %s", constraint)
 		return false
 	}
 	return false
@@ -201,6 +194,8 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 
 	// preprocesses code to remove both single line and multiline comments before file is created
 	processedCode := CommentPreprocessing(q.Code)
+	fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
+	fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
 
 	// creates temp py file
 	file := CreatePyFile(processedCode, q.Qid)

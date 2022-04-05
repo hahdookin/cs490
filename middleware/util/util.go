@@ -7,9 +7,9 @@ import (
 )
 
 // Check: error handling
-func Check(err error) {
-	if err != nil {
-		log.Fatal(err.Error())
+func Check(e error) {
+	if e != nil {
+		log.Fatal(e.Error())
 	}
 }
 

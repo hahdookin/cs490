@@ -47,22 +47,14 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 	util.EnableCors(&w, r)
 	switch r.Method {
 	case "POST":
+		var question auto.Question
+
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		util.Check(err)
 
-		var res auto.Question
-
-		err = json.Unmarshal(rBody, &res)
+		err = json.Unmarshal(rBody, &question)
 		util.Check(err)
-
-		qid := res.Qid
-		code := res.Code
-
-		question := auto.Question{
-			Qid:  qid,
-			Code: code,
-		}
 
 		out := auto.FullGrade(w, question)
 
