@@ -1,16 +1,41 @@
 <template>
-    <h1>{{ exam.name }} (ID: {{ examID }}) Total Points: {{ totalExamPoints(exam) }}</h1>
+    <h1>{{ exam.name }}</h1>
+    <h3>Total Points: {{ totalExamPoints(exam) }}</h3>
 
-    <div :key="question.id" v-for="(question, i) in questions">
-
-        <!-- Question info --> 
-        <QuestionDescription :question="question" :number="i + 1"/>
-
-        <!-- Student answer section -->
-        <AnswerBox :question="question" @student-input="handleStudentInput"/>
-
+    <!-- Minimap for questions -->
+    <div class="minimap">
+        <ol class="minimap-inner">
+            <li :key="question.id" 
+                v-for="(question, i) in questions">
+                <a href="" 
+                   v-if="currentQuestionIndex !== i"
+                   @click.prevent="currentQuestionIndex = i">
+                   {{ question.title }}
+                </a>
+                <span v-else>{{ question.title }}</span>
+                ({{ question.points }})
+            </li>
+        </ol>
     </div>
 
+    <!-- Show current question -->
+    <div :key="question.id" v-for="(question, i) in questions">
+        <div v-if="i == currentQuestionIndex">
+            <!-- Question info --> 
+            <QuestionDescription :question="question" :number="i + 1"/>
+
+            <!-- Student answer section -->
+            <AnswerBox :question="question" @student-input="handleStudentInput"/>
+        </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div v-if="questions.length > 1">
+        <button @click="onPrev" :disabled="navLeftDisabled">Previous</button>
+        <button @click="onNext" :disabled="navRightDisabled">Next</button>
+    </div>
+
+    <!-- Submit exam button -->
     <button @click="onSubmit">Submit Exam</button>
 
 </template>
@@ -41,7 +66,8 @@ export default {
         return {
             examID: +this.$route.params.examid,
             questions: [],
-            exam: {}
+            exam: {},
+            currentQuestionIndex: 0,
         };
     },
     methods: {
@@ -51,6 +77,12 @@ export default {
             res += `(${question.parameters.join(',')}):`;
             res += '\n\t';
             return res;
+        },
+        onNext() {
+            this.currentQuestionIndex++;
+        },
+        onPrev() {
+            this.currentQuestionIndex--;
         },
         async onSubmit() {
             const studentUserID = +this.$route.params.userid;
@@ -124,6 +156,26 @@ export default {
             q.code = "";
         });
         this.exam = await this.fetchExam(this.examID);
+    },
+    computed: {
+        navLeftDisabled() {
+            return this.currentQuestionIndex === 0;
+        },
+        navRightDisabled() {
+            return this.currentQuestionIndex === this.questions.length - 1
+        },
     }
 }
 </script>
+
+<style scoped>
+.minimap {
+    border: 1px solid black;
+    width: 300px;
+    /* position: absolute; */
+    justify-content: right;
+}
+.minimap-inner {
+    text-align: left;
+}
+</style>

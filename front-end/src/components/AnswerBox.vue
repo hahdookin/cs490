@@ -6,7 +6,7 @@
           cols="60"
           autocapitalize="off" 
           spellcheck="false" 
-          contenteditable="true">{{ content }}</textarea>
+          contenteditable="true">{{ question.code }}</textarea>
 </template>
 
 <script>
