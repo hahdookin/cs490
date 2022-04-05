@@ -26,10 +26,12 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 
 		qid := r.FormValue("qid")
 		code := r.FormValue("code")
+		constraint := r.FormValue("constraint")
 
 		q := auto.Question{
-			Qid:  qid,
-			Code: code,
+			Qid:        qid,
+			Code:       code,
+			Constraint: constraint,
 		}
 
 		out := auto.FullGrade(w, q)

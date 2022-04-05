@@ -2,6 +2,7 @@ package autograde
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,8 +17,9 @@ var (
 )
 
 type Question struct {
-	Qid  string `json:"qid"`
-	Code string `json:"code"`
+	Qid        string `json:"qid"`
+	Code       string `json:"code"`
+	Constraint string `json:"constraint"`
 }
 
 type Ret struct {
@@ -67,10 +69,36 @@ func detectOS() string {
 // commentPreprocessing: eliminates single-line & multi-line comments
 func commentPreprocessing(original string) string {
 
+	file, err := os.Open(original)
+	U.Check(err)
+
+	fmt.Println(file)
+
 	// remove single line comments with # start
 	// remove multi-line commments
 
 	return original
+}
+
+// findConstraint:
+func findConstraint(fName, constraint string) bool {
+
+	switch constraint {
+	case "for":
+
+		return true
+
+	case "while":
+
+		return true
+
+	case "recursion":
+
+		return true
+	default:
+		log.Fatalf("error: how? %s", constraint)
+		return false
+	}
 }
 
 // AddTestCase: adds a test case to the end of the file
@@ -78,6 +106,8 @@ func AddTestCase(file string, args []string) {
 
 	data, err := os.ReadFile(file)
 	U.Check(err)
+
+	//pyfunc : get's name of the user inputted function
 	pyfunc := U.GetStringInBetween(string(data), "def ", `(`)
 
 	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -85,6 +115,7 @@ func AddTestCase(file string, args []string) {
 
 	defer f.Close()
 
+	// add a new line to file
 	_, err = f.WriteString("\n")
 	U.Check(err)
 
@@ -141,6 +172,11 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 
 	// creates temp py file
 	file := CreatePyFile(q.Code, q.Qid)
+
+	// !!!!!pre-process comment deletion here!!!!!!!
+	file = commentPreprocessing(file)
+
+	// find constraint here
 
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
