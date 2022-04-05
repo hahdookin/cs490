@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 
 	U "github.com/AOrps/cs490/middleware/util"
 )
@@ -26,6 +28,7 @@ type Ret struct {
 	NameCorrect bool     `json:"namecorrect"` // if function name is correct
 	Output      []string `json:"output"`      // output[i: i in range(tests)]
 	Pass        []bool   `json:"pass"`        // pass[i: i in range(tests)]
+	Constraint  bool     `json:"constraint"`
 }
 
 // CreatePyFile: creates a temp python file
@@ -66,39 +69,65 @@ func detectOS() string {
 	return path
 }
 
-// commentPreprocessing: eliminates single-line & multi-line comments
-func commentPreprocessing(original string) string {
+// CommentPreprocessing: eliminates single-line & multi-line comments
+func CommentPreprocessing(original string) string {
+
+	var res string
 
 	file, err := os.Open(original)
 	U.Check(err)
 
 	fmt.Println(file)
 
-	// remove single line comments with # start
-	// remove multi-line commments
+	// remove single line comments
+	// start: #  &&  end: \n
+	singleLine := regexp.MustCompile(`#.*\n`)
+	removedSingleLineComment := singleLine.ReplaceAllString(original, "")
 
-	return original
+	// case: 1
+	// remove multi-line commments
+	// start: """ && end: """
+	multiLineDoubleQuotes := regexp.MustCompile(`""".*"""`)
+	removedCase1 := multiLineDoubleQuotes.ReplaceAllString(removedSingleLineComment, "")
+
+	// case: 2
+	// remove multi-line commments
+	// start: ''' && end: '''
+	multiLineSingleQuotes := regexp.MustCompile(`'''.*'''`)
+	removedCase2 := multiLineSingleQuotes.ReplaceAllString(removedCase1, "")
+
+	res = removedCase2
+
+	return res
 }
 
-// findConstraint:
+// findConstraint: find if user program (file) actually has a constraint
 func findConstraint(fName, constraint string) bool {
+
+	data, err := os.ReadFile(fName)
+	U.Check(err)
+	text := string(data)
 
 	switch constraint {
 	case "for":
-
-		return true
-
+		if strings.Contains(text, constraint) {
+			return true
+		}
 	case "while":
-
-		return true
-
+		if strings.Contains(text, constraint) {
+			return true
+		}
 	case "recursion":
+		pyfunc := U.GetStringInBetween(text, "def ", `(`)
 
-		return true
+		if strings.Contains(text, pyfunc) {
+			return true
+		}
 	default:
 		log.Fatalf("error: how? %s", constraint)
 		return false
 	}
+	return false
 }
 
 // AddTestCase: adds a test case to the end of the file
@@ -170,13 +199,14 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	endpoint := fmt.Sprintf("%s/questions/%s", ENDPOINT, q.Qid)
 	DBQuest := U.DBGetJSON(endpoint)
 
-	// creates temp py file
-	file := CreatePyFile(q.Code, q.Qid)
+	// preprocesses code to remove both single line and multiline comments before file is created
+	processedCode := CommentPreprocessing(q.Code)
 
-	// !!!!!pre-process comment deletion here!!!!!!!
-	file = commentPreprocessing(file)
+	// creates temp py file
+	file := CreatePyFile(processedCode, q.Qid)
 
 	// find constraint here
+	passConstraint := findConstraint(file, q.Constraint)
 
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
@@ -213,5 +243,6 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		NameCorrect: correctFuncName,
 		Output:      Exec,
 		Pass:        Succeed,
+		Constraint:  passConstraint,
 	}
 }
