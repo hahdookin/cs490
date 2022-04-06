@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 OUTPUT=server.o
 
-all: run
+all: compile
 
 compile:
 	@go build -o $(OUTPUT) server.go

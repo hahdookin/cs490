@@ -8,34 +8,14 @@ import (
 	"net/http"
 	"strconv"
 
-	L "github.com/AOrps/cs490/middleware/util"
+	auto "github.com/AOrps/cs490/middleware/autograde"
+	util "github.com/AOrps/cs490/middleware/util"
 )
 
 const (
-	PORT    = 8087
+	PORT    = 8080
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
-
-// login -> handles login functionality (returns type: student | teacher)
-func login(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w)
-	switch r.Method {
-	case "POST":
-		rBody, err := ioutil.ReadAll(r.Body)
-		defer r.Body.Close()
-		L.Check(err)
-		var clientData L.UP
-
-		err = json.Unmarshal(rBody, &clientData)
-		L.Check(err)
-
-		resp := L.SendPostJSON(BACKEND, clientData)
-		fmt.Fprintf(w, "%v", resp)
-
-	default:
-		fmt.Fprintf(w, "POST plz")
-	}
-}
 
 func cringe(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -46,13 +26,15 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 
 		qid := r.FormValue("qid")
 		code := r.FormValue("code")
+		constraint := r.FormValue("constraint")
 
-		q := L.Question{
-			Qid:  qid,
-			Code: code,
+		q := auto.Question{
+			Qid:        qid,
+			Code:       code,
+			Constraint: constraint,
 		}
 
-		out := L.FullGrade(w, q)
+		out := auto.FullGrade(w, q)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -62,27 +44,19 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 }
 
 func autograde(w http.ResponseWriter, r *http.Request) {
-	L.EnableCors(&w)
+	util.EnableCors(&w, r)
 	switch r.Method {
 	case "POST":
+		var question auto.Question
+
 		rBody, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
-		L.Check(err)
+		util.Check(err)
 
-		var res L.Question
+		err = json.Unmarshal(rBody, &question)
+		util.Check(err)
 
-		err = json.Unmarshal(rBody, &res)
-		L.Check(err)
-
-		qid := res.Qid
-		code := res.Code
-
-		question := L.Question{
-			Qid:  qid,
-			Code: code,
-		}
-
-		out := L.FullGrade(w, question)
+		out := auto.FullGrade(w, question)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -96,7 +70,6 @@ func main() {
 	port := strconv.Itoa(PORT)
 
 	// handler
-	http.HandleFunc("/", login)
 	http.HandleFunc("/autograde", autograde)
 	http.HandleFunc("/cringe", cringe)
 
@@ -105,6 +78,6 @@ func main() {
 
 	// start Server at port
 	err := http.ListenAndServe(":"+port, nil)
-	L.Check(err)
+	util.Check(err)
 
 }

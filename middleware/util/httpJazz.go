@@ -4,30 +4,41 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
-type UP struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+// http://ec2-3-92-132-35.compute-1.amazonaws.com/studentexamanswers
+// GET: http://ec2-3-92-132-35.compute-1.amazonaws.com/questions
+
+// Questions (Database)
+type DBQuestion_Test struct {
+	Arguments []string
+	Output    string
 }
 
-// SendPOSTJSON: sends a POST encoded with JSON (frontend)
-func SendPostJSON(endpoint string, cd UP) string {
-	data := url.Values{
-		"username": {cd.Username},
-		"password": {cd.Password},
-	}
+type DBQuestion struct {
+	ID           int
+	Title        string
+	Desc         string
+	Difficulty   string
+	FunctionName string
+	Parameters   []string
+	Tests        []DBQuestion_Test
+}
 
-	resp, err := http.PostForm(endpoint, data)
-	Check(err)
+// StudentExamAnswers
+type StudentExamAnswer_Test struct {
+	Pass          bool
+	Points        int
+	StudentOutput string
+}
 
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	Check(err)
-
-	return string(body)
+type StudentExamAnswer struct {
+	QID                 int
+	StudentExamAnswerID int
+	Code                string
+	Tests               []StudentExamAnswer_Test
+	Comment             string
+	Id                  int
 }
 
 // DBGetJSON: Get's Info from DB and converts it into a DBQuestion Struct

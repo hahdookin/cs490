@@ -7,9 +7,9 @@ import (
 )
 
 // Check: error handling
-func Check(err error) {
-	if err != nil {
-		log.Fatal(err.Error())
+func Check(e error) {
+	if e != nil {
+		log.Fatal(e.Error())
 	}
 }
 
@@ -27,6 +27,10 @@ func GetStringInBetween(str, start, end string) string {
 	return str[s : s+e]
 }
 
-func EnableCors(w *http.ResponseWriter) {
+// EnableCors: headers needed to enable cors
+func EnableCors(w *http.ResponseWriter, r *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS,PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	(*w).Header().Set("Referrer-Policy", "no-referrer")
 }
