@@ -96,6 +96,7 @@ func main() {
 	// handler
 	http.HandleFunc("/autograde", autograde)
 	http.HandleFunc("/cringe", cringe)
+	http.HandleFunc("/fcors", cringeauto)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
