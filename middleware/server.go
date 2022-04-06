@@ -28,6 +28,11 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 		code := r.FormValue("code")
 		constraint := r.FormValue("constraint")
 
+		// fmt.Println(constraint)
+		// for key, value := range r.Form {
+		// 	fmt.Printf("%v:%v\n", key, value)
+		// }
+
 		q := auto.Question{
 			Qid:        qid,
 			Code:       code,

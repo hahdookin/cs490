@@ -76,7 +76,7 @@ func CommentPreprocessing(original string) string {
 	// remove single line comments
 	// start: #  &&  end: \n
 	singleLine := regexp.MustCompile(`#.*\n`)
-	removedSingleLineComment := singleLine.ReplaceAllString(original, "")
+	removedSingleLineComment := singleLine.ReplaceAllString(original, `\n`)
 
 	// case: 1
 	// remove multi-line commments
@@ -206,6 +206,7 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
 	U.Check(err)
+	// fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
 
 	// iterates thru test cases, runs it and then reverts
 	for _, test := range DBQuest.Tests {
