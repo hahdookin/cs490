@@ -90,6 +90,29 @@ func cringeauto(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func actual(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var question auto.Question
+
+		dec := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := dec.Decode(&question)
+		util.Check(err)
+
+		// fmt.Fprintf(w, "%v", question)
+		out := auto.FullGrade(w, question)
+
+		enc := json.NewEncoder(w)
+		enc.Encode(out)
+
+	default:
+		fmt.Fprintf(w, "POST plz")
+	}
+}
+
 func main() {
 	port := strconv.Itoa(PORT)
 
@@ -97,6 +120,7 @@ func main() {
 	http.HandleFunc("/autograde", autograde)
 	http.HandleFunc("/cringe", cringe)
 	http.HandleFunc("/fcors", cringeauto)
+	http.HandleFunc("/actual", actual)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
