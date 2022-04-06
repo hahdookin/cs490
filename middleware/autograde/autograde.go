@@ -194,8 +194,8 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 
 	// preprocesses code to remove both single line and multiline comments before file is created
 	processedCode := CommentPreprocessing(q.Code)
-	fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
-	fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
+	// fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
+	// fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
 
 	// creates temp py file
 	file := CreatePyFile(processedCode, q.Qid)
