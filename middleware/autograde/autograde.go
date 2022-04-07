@@ -74,23 +74,16 @@ func CommentPreprocessing(original string) string {
 	var res string
 
 	// remove single line comments
-	// start: #  &&  end: \n
-	singleLine := regexp.MustCompile(`#.*\n`)
-	removedSingleLineComment := singleLine.ReplaceAllString(original, `\n`)
+	// start: #  &&  end: \n || end_of_line
+	singleLine := regexp.MustCompile(`#.*?\n|#.*$`)
+	removedSingleLineComment := singleLine.ReplaceAllString(original, "\n")
 
-	// case: 1
 	// remove multi-line commments
-	// start: """ && end: """
-	multiLineDoubleQuotes := regexp.MustCompile(`""".*"""`)
+	// start: """ && end: """ || start: ''' && end: '''
+	multiLineDoubleQuotes := regexp.MustCompile(`""".*"""|'''.*'''`)
 	removedCase1 := multiLineDoubleQuotes.ReplaceAllString(removedSingleLineComment, "")
 
-	// case: 2
-	// remove multi-line commments
-	// start: ''' && end: '''
-	multiLineSingleQuotes := regexp.MustCompile(`'''.*'''`)
-	removedCase2 := multiLineSingleQuotes.ReplaceAllString(removedCase1, "")
-
-	res = removedCase2
+	res = removedCase1
 
 	return res
 }
@@ -196,6 +189,7 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	processedCode := CommentPreprocessing(q.Code)
 	// fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
 	// fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
+	fmt.Fprintf(w, "%v\n", processedCode)
 
 	// creates temp py file
 	file := CreatePyFile(processedCode, q.Qid)
@@ -206,7 +200,7 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
 	U.Check(err)
-	// fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
+	fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
 
 	// iterates thru test cases, runs it and then reverts
 	for _, test := range DBQuest.Tests {
