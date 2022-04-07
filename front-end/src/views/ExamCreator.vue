@@ -7,8 +7,9 @@
 
     <!-- Bank filter form -->
     <h4>Bank Filter</h4>
-    <div class="row" style="padding-bottom: 5px;border: 1px solid black">
 
+    <form @change="onFilterFormChanged" @submit.prevent>
+    <div class="row" style="padding-bottom: 5px;border: 1px solid black">
         <div class="column">
             <h5>Difficulty</h5>
             <div class="filter-selection">
@@ -39,15 +40,34 @@
                 <label>Recursion: </label>
                 <input type="checkbox" v-model="filters.category.recursion">
                 <br>
+                <label>Misc: </label>
+                <input type="checkbox" v-model="filters.category.misc">
+                <br>
+            </div>
+        </div>
+
+        <div class="column">
+            <h5>Constraint</h5>
+            <div class="filter-selection">
+                <label>For Loops: </label>
+                <input type="checkbox" v-model="filters.constraint.forloop">
+                <br>
+                <label>While Loops: </label>
+                <input type="checkbox" v-model="filters.constraint.whileloop">
+                <br>
+                <label>Recursion: </label>
+                <input type="checkbox" v-model="filters.constraint.recursion">
+                <br>
             </div>
         </div>
 
         <div class="column">
             <h5>Keyword Search</h5>
-            <input type="text" v-model="filters.keyword">
+            <input @input="onFilterFormChanged" type="text" v-model="filters.keyword">
         </div>
 
     </div>
+    </form>
 
     <!-- Here is where the drag-and-drop exam creation happens -->
     <div class="two-column-container">
@@ -80,7 +100,7 @@
                  <h3 class="column-title">BANK</h3>
              </div>
 
-            <ExamCreatorItem v-for="question in bankList" 
+            <ExamCreatorItem v-for="question in bankList()" 
                              :question="question"
                              @dragstart="dragStart($event, question)"
                              class="single-column-item moveable"/>
@@ -118,21 +138,57 @@ export default {
                     whileloop: true,
                     ifstmt: true,
                     recursion: true,
+                    misc: true,
                 },
-                contraint: {
+                constraint: {
                     forloop: true,
                     whileloop: true,
                     recursion: true,
                 },
-                keyword: "",
+                keyword: '',
             },
             examName: '',
             questions: [],
-            errorMessage: "",
+            displayQuestions: [],
+
+            errorMessage: '',
             success: false,
         };
     },
+    async created() {
+        this.questions = await this.fetchQuestions();
+        this.resetPoints();
+        // Start each question in the bank column
+        this.moveAllToColumn(bankColumn);
+        this.displayQuestions = this.questions;
+    },
     methods: {
+        updateResults() {
+            this.displayQuestions = this.questions;
+
+            const filters = this.filters;
+            for (const section in filters) {
+                if (section === "keyword") {
+                    // Apply keyword filter
+                    this.displayQuestions = this.displayQuestions.filter(q => {
+                        const kw = filters.keyword.trim();
+                        try {
+                            const regex = new RegExp(kw, 'i');
+                            return q.desc.match(regex) !== null;
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+                    continue;
+                }
+                // Apply flag filter
+                for (const [key, val] of Object.entries(filters[section]))
+                    if (!val) 
+                        this.displayQuestions = this.displayQuestions.filter( 
+                            q => q[section] !== key
+                        )
+            }
+        },
         dragStart(event, question) {
             event.dataTransfer.dropEffect = 'move';
             event.dataTransfer.effectAllowed = 'move';
@@ -151,6 +207,9 @@ export default {
         setSuccess(msg) {
             this.success = true;
             this.errorMessage = msg;
+        },
+        onFilterFormChanged() {
+            this.updateResults();
         },
         async onSubmit() {
             let examQuestions = this.questions.filter(q => q.list === examColumn);
@@ -204,20 +263,15 @@ export default {
                 default:
                     return 'black';
             }
+        },
+        bankList() {
+            return this.displayQuestions.filter(q => q.list === bankColumn);
         }
     },
-    async created() {
-        this.questions = await this.fetchQuestions();
-        this.resetPoints();
-        // Start each question in the bank column
-        // 1 -> bank
-        // 2 -> exam
-        this.moveAllToColumn(bankColumn);
-    },
     computed: {
-        bankList() {
-            return this.questions.filter(q => q.list === bankColumn);
-        },
+        /* bankList() { */
+        /*     return this.questions.filter(q => q.list === bankColumn); */
+        /* }, */
         examList() {
             return this.questions.filter(q => q.list === examColumn);
         },

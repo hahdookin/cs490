@@ -3,12 +3,20 @@
          @dragend="onDragEnd($event)" 
          draggable="true">
 
-        <h3>{{ question.title }}</h3>
-        <h5 :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty }}</h5>
-        <p>{{ question.desc }}</p>
-        <div class="test-cases">
-            <code v-for="test in question.tests" v-html="highlight(question.functionname, test)"></code>
+        <div>
+            <h3 style="display: inline">{{ question.title }}</h3>
+            <h3 style="display: inline"> 
+                [<span :style="{ color: difficultyColor(question.difficulty) }">{{ question.difficulty[0].toUpperCase() }}</span>]
+            </h3>
         </div>
+
+        <p>{{ question.desc }}</p>
+
+        <p v-if="question.constraint !== 'none'">{{ question.constraint }}</p>
+
+        <!--<div class="test-cases">-->
+            <!--<code v-for="test in question.tests" v-html="highlight(question.functionname, test)"></code>-->
+        <!--</div>-->
 
         <div v-if="showPointsInput">
             <label>Points: </label>
@@ -94,5 +102,11 @@ code {
     justify-content: safe center;
     width: 80%;
     margin: 0 auto;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
 }
 </style>
