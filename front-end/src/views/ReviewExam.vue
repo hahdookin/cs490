@@ -15,7 +15,7 @@
                 <div class="single-column-container">
                     <AnswerBox class="single-column-item" 
                                :disabled="true" 
-                               :content="studentsAnswer(question.id).code"/>
+                               :question="studentsAnswer(question.id)"/>
                 </div>
 
                 <!-- Point distribution table -->

@@ -25,6 +25,10 @@ export default {
                     qid: qid,
                     code: code
                 })
+                // body: JSON.stringify({
+                //     qid: qid,
+                //     code: code
+                // })
             });
             const resp = await res.json();
             return resp;
@@ -84,6 +88,18 @@ export default {
             const data = await res.json();
             return data;
         };
+        // Fetch all questions with query in desc
+        const fetchQuestionsLike = async function(query) {
+            const res = await fetch(`${database}/questions?desc_like=${query}`);
+            const data = await res.json();
+            return data;
+        };
+        // Fetch all questions matching the filter
+        // const fetchQuestionsByFilter = async function(filter) {
+        //     const res = await fetch(`${database}/questions?${filter}`);
+        //     const data = await res.json();
+        //     return data;
+        // };
         // Fetch single question
         const fetchQuestion = async function(questionID) {
             const res = await fetch(`${database}/questions/${questionID}`);
@@ -220,6 +236,8 @@ export default {
 
         app.provide('fetchQuestion', fetchQuestion);
         app.provide('fetchQuestions', fetchQuestions);
+        app.provide('fetchQuestionsLike', fetchQuestionsLike);
+        //app.provide('fetchQuestionsByFilter', fetchQuestionsByFilter);
         app.provide('fetchQuestionsFromExam', fetchQuestionsFromExam);
 
         app.provide('fetchUser', fetchUser);

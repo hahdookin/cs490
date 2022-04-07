@@ -22,10 +22,11 @@
                 </div>
                 <!--<button @click="onQueryChange">Submit</button>-->
             </div>
+            <!-- Results of query -->
             <div class="single-column-item"
                  :key="question.id" 
                  v-for="question in questions">
-                <p>{{ question.title }}</p>
+                <p><strong>{{ question.title }}</strong></p>
                 <p>{{ question.desc }}</p>
             </div>
         </div>

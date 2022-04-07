@@ -109,9 +109,9 @@ export default {
             ser.autograded = true;
             exam.autograded = true;
 
-            console.log(ser);
+            //console.log(ser);
             const res = await this.putStudentExamResult(ser);
-            console.log(res);
+            //console.log(res);
 
             this.autogradeInProgress = false;
         },
@@ -131,6 +131,8 @@ export default {
 <style scoped>
 .exam-item {
     border: 1px solid black;
-    margin: 5px;
+    margin: 5px auto;
+    padding: 5px;
+    width: 30%;
 }
 </style>

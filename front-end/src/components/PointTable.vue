@@ -22,6 +22,7 @@
                 <th>Run</th>
                 <th>Pass?</th>
                 <th>Points</th>
+                <th>Override</th>
             </tr>
             <tr v-for="test in question.tests">
                 <td>{{ testStr(test, question.functionname) }}</td>
@@ -30,6 +31,9 @@
                 <td>
                 <p v-if="disabled"><strong>{{ test.points }}</strong></p>
                 <input v-else type="number" size="4" :max="test.maxpoints" v-model="test.points" min="0">
+                </td>
+                <td>
+                <input type="number" size="4" :max="test.maxpoints" min="0">
                 </td>
             </tr>
             <tfoot>
