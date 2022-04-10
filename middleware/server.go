@@ -28,6 +28,11 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 		code := r.FormValue("code")
 		constraint := r.FormValue("constraint")
 
+		// fmt.Println(constraint)
+		// for key, value := range r.Form {
+		// 	fmt.Printf("%v:%v\n", key, value)
+		// }
+
 		q := auto.Question{
 			Qid:        qid,
 			Code:       code,
@@ -66,12 +71,56 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func cringeauto(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var question auto.Question
+
+		dec := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := dec.Decode(&question)
+		util.Check(err)
+
+		fmt.Fprintf(w, "%v", question)
+
+	default:
+		fmt.Fprintf(w, "POST plz")
+	}
+}
+
+func actual(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var question auto.Question
+
+		dec := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := dec.Decode(&question)
+		util.Check(err)
+
+		// fmt.Fprintf(w, "%v", question)
+		out := auto.FullGrade(w, question)
+
+		enc := json.NewEncoder(w)
+		enc.Encode(out)
+
+	default:
+		fmt.Fprintf(w, "POST plz")
+	}
+}
+
 func main() {
 	port := strconv.Itoa(PORT)
 
 	// handler
 	http.HandleFunc("/autograde", autograde)
 	http.HandleFunc("/cringe", cringe)
+	http.HandleFunc("/fcors", cringeauto)
+	http.HandleFunc("/actual", actual)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
