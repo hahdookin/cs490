@@ -15,7 +15,7 @@
                 <div class="single-column-container">
                     <AnswerBox class="single-column-item" 
                                :disabled="true" 
-                               :content="studentsAnswer(question.id).code"/>
+                               :question="studentsAnswer(question.id)"/>
                 </div>
 
                 <!-- Point distribution table -->
@@ -27,6 +27,7 @@
         </div>
     </div>
     <button @click="onSubmit">Finalize Grades</button>
+    <p :style="{ color: success ? 'green' : 'red' }">{{ errorMessage }}</p>
 </template>
 
 <script>
@@ -63,9 +64,43 @@ export default {
             exam: {},
             questions: [],
             loaded: false,
+
+            errorMessage: '',
+            success: false,
         };
     },
     methods: {
+        setError(msg) {
+            this.success = false;
+            this.errorMessage = msg;
+            return false;
+        },
+        setSuccess(msg) {
+            this.success = true;
+            this.errorMessage = msg;
+        },
+        validateOverrides() {
+            for (const question of this.questions) {
+                // Validate namecorrect input
+                let nc_override = question.override.trim();
+                if (nc_override !== '') {
+                    if (!nc_override.match(/[0-9]+/g))
+                        return this.setError('Illegal format in override input');
+                    // TODO: Check if input is in range
+                }
+
+                // Validate all tests input
+                for (const test of question.tests) {
+                    let test_override = test.override.trim();
+                    if (test_override !== '') {
+                        if (!test_override.match(/[0-9]+/g))
+                            return this.setError('Illegal format in override input');
+                        // TODO: Check if input is in range
+                    }
+                }
+            }
+            return true;
+        },
         async onSubmit() {
             // Get total points awarded
             let totalPoints = 0;
@@ -75,6 +110,25 @@ export default {
                 });
                 totalPoints += q.namecorrectpoints;
             });
+
+            // Validate that override inputs are OK
+            if (!this.validateOverrides())
+                return;
+
+            // If override is not empty, set as the current points
+            for (const question of this.questions) {
+                let nc_override = question.override.trim();
+                if (nc_override !== '')
+                    question.namecorrectpoints = Number(nc_override);
+                for (const test of question.tests) {
+                    let test_override = test.override.trim();
+                    if (test_override !== '')
+                        test.points = Number(test_override)
+                }
+            }
+
+            console.log(this.questions);
+            return;
 
             // Update studentexamanswer points amount and the comment
             for (const q of this.questions) {
@@ -94,21 +148,20 @@ export default {
             // Put the studentexamanswers and studentexamresult
 
             // Put the studentexamanswers
-            for (const sea of this.studentExamAnswers) {
-                const res = await this.putStudentExamAnswer(sea);
-            }
+            for (const sea of this.studentExamAnswers)
+                await this.putStudentExamAnswer(sea);
 
             // Put the studentexamresult
-            const res = await this.putStudentExamResult(this.studentExamResult);
+            await this.putStudentExamResult(this.studentExamResult);
 
             // Redirect back to home
             this.$router.push(`/teacher/${this.userid}/`);
         },
         studentsAnswer(qid) {
-            const answer = this.studentExamAnswers.find(
-                a => a.questionid === qid && a.studentexamresultid === this.studentExamResultID
+            return this.studentExamAnswers.find(
+                a => a.questionid === qid && 
+                     a.studentexamresultid === this.studentExamResultID
             );
-            return answer;
         },
         testStr(test, fname) {
             return `${fname}(${test.arguments.join(',')}) -> ${test.output}`;
@@ -131,13 +184,15 @@ export default {
             }
             const testsCount = question.tests.length;
             const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
-            for (const [qTest, maxPoints] of this.zip(question.tests, pointDist)) {
+            for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
                 qTest.maxpoints = maxPoints;
-            }
+
+            // Attach extra info to the question object (used in point table)
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.comment = studentsAnswer.comment;
+            question.constraintmet = studentsAnswer.constraintmet;
         }
 
         this.loaded = true;
