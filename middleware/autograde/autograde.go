@@ -1,6 +1,7 @@
 package autograde
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -105,10 +106,13 @@ func findConstraint(fName, constraint string) bool {
 			return true
 		}
 	case "recursion":
-		pyfunc := U.GetStringInBetween(text, "def ", `(`)
-
-		if strings.Contains(text, pyfunc) {
-			return true
+		pyfunc, err := U.GetStringInBetween(text, "def ", `(`)
+		if err != nil {
+			return false
+		} else {
+			if strings.Contains(text, pyfunc) {
+				return true
+			}
 		}
 	default:
 		return false
@@ -117,13 +121,16 @@ func findConstraint(fName, constraint string) bool {
 }
 
 // AddTestCase: adds a test case to the end of the file
-func AddTestCase(file string, args []string) {
+func AddTestCase(file string, args []string) error {
 
 	data, err := os.ReadFile(file)
 	U.Check(err)
 
 	//pyfunc : get's name of the user inputted function
-	pyfunc := U.GetStringInBetween(string(data), "def ", `(`)
+	pyfunc, err := U.GetStringInBetween(string(data), "def ", `(`)
+	if err != nil {
+		return errors.New("can not parse out pyfunc")
+	}
 
 	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	U.Check(err)
@@ -143,25 +150,22 @@ func AddTestCase(file string, args []string) {
 			strVar := fmt.Sprintf("\"%s\"", arg)
 
 			if i < len(args)-1 {
-				_, err = f.WriteString(fmt.Sprintf("%s,", strVar))
-				U.Check(err)
+				f.WriteString(fmt.Sprintf("%s,", strVar))
 			} else {
-				_, err = f.WriteString(strVar)
-				U.Check(err)
+				f.WriteString(strVar)
 			}
 		} else {
 			if i < len(args)-1 {
-				_, err = f.WriteString(fmt.Sprintf("%s,", arg))
-				U.Check(err)
+				f.WriteString(fmt.Sprintf("%s,", arg))
 			} else {
-				_, err = f.WriteString(arg)
-				U.Check(err)
+				f.WriteString(arg)
 			}
 		}
 	}
 
 	_, err = f.WriteString("), end=\"\")")
 	U.Check(err)
+	return nil
 }
 
 // RunCode: run a python file in golang
@@ -189,7 +193,7 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	processedCode := CommentPreprocessing(q.Code)
 	// fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
 	// fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
-	fmt.Fprintf(w, "%v\n", processedCode)
+	// fmt.Fprintf(w, "%v\n", processedCode)
 
 	// creates temp py file
 	file := CreatePyFile(processedCode, q.Qid)
@@ -200,12 +204,15 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
 	U.Check(err)
-	fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
+	// fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
 
 	// iterates thru test cases, runs it and then reverts
 	for _, test := range DBQuest.Tests {
+		err = AddTestCase(file, test.Arguments)
+		if err != nil {
+			return Ret{}
+		}
 
-		AddTestCase(file, test.Arguments)
 		validate := test.Output
 		output, trySuccess := RunCode(file, validate)
 
@@ -220,12 +227,17 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		// Reverts File back to what user submitted
 		os.WriteFile(file, f, 0644)
 	}
+
 	U.Check(err)
 	out := string(f)
 	// fmt.Println(out)
 
-	pyfunc := U.GetStringInBetween(string(out), "def ", `(`)
-	correctFuncName = pyfunc == DBQuest.FunctionName
+	pyfunc, err := U.GetStringInBetween(string(out), "def ", `(`)
+	if err != nil {
+		correctFuncName = false
+	} else {
+		correctFuncName = pyfunc == DBQuest.FunctionName
+	}
 
 	RemovePyFile(file)
 
