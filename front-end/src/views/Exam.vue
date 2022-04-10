@@ -106,8 +106,6 @@ export default {
                 // Subtract 1 point for the correct fname
                 const pointDist = this.split(points - (points === 0 ? 0 : 1), testsCount);
                 for (const [test, p] of this.zip(question.tests, pointDist)) {
-                    // TODO: pass will be handled by querying autograder,
-                    // for now just put random pass or fail
                     testsPayload.push({
                         pass: false,
                         points: p || 0,
@@ -120,6 +118,7 @@ export default {
                     runs: false,
                     namecorrect: false,
                     namecorrectpoints: 0,
+                    constraintmet: false,
                     code: question.code,
                     tests: testsPayload,
                     comment: '',

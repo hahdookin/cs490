@@ -1,8 +1,11 @@
 <template>
     <div class="wrapper">
         <h3>{{ number }}) {{ question.title }}</h3>
-        <h5>Points: {{ question.points }}</h5>
+        <h4>Points: {{ question.points }}</h4>
         <p>{{ question.desc }}</p>
+        <p v-if="question.constraint !== 'none'">
+        <strong>Constraint:</strong> {{ constraintFmt(question.constraint) }}
+        </p>
         <p>Examples:</p>
         <div class="test-cases">
             <code v-for="test in question.tests" v-html="highlight(question.functionname, test)"></code>
@@ -18,6 +21,19 @@ export default {
         number: Number
     },
     methods: {
+        // Map the stored constants to nice text
+        constraintFmt(constraint) {
+            switch (constraint.toLowerCase()) {
+                case 'forloop':
+                    return 'For Loop';
+                case 'whileloop':
+                    return 'While Loop';
+                case 'recursion':
+                    return 'Recursion';
+                default:
+                    return constraint;
+            }
+        }, 
         testStr(test, fname) {
             return `${fname}(${test.arguments.join(',')}) -> ${test.output}`;
         },
