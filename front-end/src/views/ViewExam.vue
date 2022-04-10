@@ -99,6 +99,7 @@ export default {
                 answer.runs = res.runs;
                 answer.namecorrect = res.namecorrect;
                 answer.namecorrectpoints = +res.namecorrect; // 1 if true, 0 otherwise
+                answer.constraintmet = res.constraint;
                 for (let i = 0; i < answer.tests.length; i++) {
                     answer.tests[i].pass = res.pass[i];
                     answer.tests[i].studentoutput = res.output[i];
@@ -109,9 +110,7 @@ export default {
             ser.autograded = true;
             exam.autograded = true;
 
-            console.log(ser);
             const res = await this.putStudentExamResult(ser);
-            console.log(res);
 
             this.autogradeInProgress = false;
         },
@@ -131,6 +130,8 @@ export default {
 <style scoped>
 .exam-item {
     border: 1px solid black;
-    margin: 5px;
+    margin: 5px auto;
+    padding: 5px;
+    width: 30%;
 }
 </style>
