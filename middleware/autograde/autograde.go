@@ -3,7 +3,6 @@ package autograde
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
@@ -89,9 +88,8 @@ func CommentPreprocessing(original string) string {
 	return res
 }
 
-// findConstraint: find if user program (file) actually has a constraint
+// findConstraint: find if user program (file) contains the constraint
 func findConstraint(fName, constraint string) bool {
-
 	data, err := os.ReadFile(fName)
 	U.Check(err)
 	text := string(data)
@@ -182,7 +180,7 @@ func RunCode(file, validate string) (string, bool) {
 }
 
 // FullGrade: does all the autograde stuff
-func FullGrade(w http.ResponseWriter, q Question) Ret {
+func FullGrade(q Question) Ret {
 
 	var correctFuncName bool
 	var Exec []string

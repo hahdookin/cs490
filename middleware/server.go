@@ -16,7 +16,7 @@ const (
 	BACKEND = "https://web.njit.edu/~gmo9/back-end/backend.php"
 )
 
-func cringe(w http.ResponseWriter, r *http.Request) {
+func formDataLegacy(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		if err := r.ParseForm(); err != nil {
@@ -38,7 +38,7 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 			Constraint: constraint,
 		}
 
-		out := auto.FullGrade(w, q)
+		out := auto.FullGrade(q)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -47,19 +47,19 @@ func cringe(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func autograde(w http.ResponseWriter, r *http.Request) {
+func autogradeGoEnableCors(w http.ResponseWriter, r *http.Request) {
 	util.EnableCors(&w, r)
 	switch r.Method {
 	case "POST":
 		var question auto.Question
 
 		dec := json.NewDecoder(r.Body)
+		err := dec.Decode(&question)
 
 		defer r.Body.Close()
-
-		err := dec.Decode(&question)
 		util.Check(err)
-		out := auto.FullGrade(w, question)
+
+		out := auto.FullGrade(question)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -69,7 +69,7 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func actual(w http.ResponseWriter, r *http.Request) {
+func autograde(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		var question auto.Question
@@ -82,7 +82,7 @@ func actual(w http.ResponseWriter, r *http.Request) {
 		util.Check(err)
 
 		// fmt.Fprintf(w, "%v", question)
-		out := auto.FullGrade(w, question)
+		out := auto.FullGrade(question)
 
 		enc := json.NewEncoder(w)
 		enc.Encode(out)
@@ -96,9 +96,9 @@ func main() {
 	port := strconv.Itoa(PORT)
 
 	// handler
-	http.HandleFunc("/autograde", autograde)
-	http.HandleFunc("/cringe", cringe)
-	http.HandleFunc("/actual", actual)
+	http.HandleFunc("/cringe", formDataLegacy)
+	http.HandleFunc("/autograde", autogradeGoEnableCors)
+	http.HandleFunc("/actual", autograde)
 
 	// Prints where it is on localhost
 	fmt.Printf("http://localhost:%s\n", port)
