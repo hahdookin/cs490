@@ -20,6 +20,8 @@ type DBQuestion struct {
 	Title        string
 	Desc         string
 	Difficulty   string
+	Category     string
+	Constraint   string
 	FunctionName string
 	Parameters   []string
 	Tests        []DBQuestion_Test

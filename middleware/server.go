@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -54,13 +53,12 @@ func autograde(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var question auto.Question
 
-		rBody, err := ioutil.ReadAll(r.Body)
+		dec := json.NewDecoder(r.Body)
+
 		defer r.Body.Close()
-		util.Check(err)
 
-		err = json.Unmarshal(rBody, &question)
+		err := dec.Decode(&question)
 		util.Check(err)
-
 		out := auto.FullGrade(w, question)
 
 		enc := json.NewEncoder(w)

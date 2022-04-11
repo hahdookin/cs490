@@ -97,12 +97,14 @@ func findConstraint(fName, constraint string) bool {
 	text := string(data)
 
 	switch constraint {
-	case "for":
-		if strings.Contains(text, constraint) {
+	case "none":
+		return true
+	case "forloop":
+		if strings.Contains(text, "for") {
 			return true
 		}
-	case "while":
-		if strings.Contains(text, constraint) {
+	case "whileloop":
+		if strings.Contains(text, "while") {
 			return true
 		}
 	case "recursion":
@@ -127,7 +129,7 @@ func AddTestCase(file string, args []string) error {
 	U.Check(err)
 
 	//pyfunc : get's name of the user inputted function
-	pyfunc, err := U.GetStringInBetween(string(data), "def ", `(`)
+	pyfunc, err := U.GetStringInBetween(string(data), "def ", `(`) // def kajnsdkfjsdfk(y): return
 	if err != nil {
 		return errors.New("can not parse out pyfunc")
 	}
@@ -199,39 +201,16 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	file := CreatePyFile(processedCode, q.Qid)
 
 	// find constraint here
-	passConstraint := findConstraint(file, q.Constraint)
+	// passConstraint := findConstraint(file, q.Constraint)
+	passConstraint := findConstraint(file, DBQuest.Constraint)
 
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
 	U.Check(err)
 	// fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
 
-	// iterates thru test cases, runs it and then reverts
-	for _, test := range DBQuest.Tests {
-		err = AddTestCase(file, test.Arguments)
-		if err != nil {
-			return Ret{}
-		}
-
-		validate := test.Output
-		output, trySuccess := RunCode(file, validate)
-
-		// To Print out stuff uncomment lines below
-		// g, err := os.ReadFile(file)
-		// U.Check(err)
-		// fmt.Println(string(g))
-
-		Exec = append(Exec, output)
-		Succeed = append(Succeed, trySuccess)
-
-		// Reverts File back to what user submitted
-		os.WriteFile(file, f, 0644)
-	}
-
-	U.Check(err)
 	out := string(f)
 	// fmt.Println(out)
-
 	pyfunc, err := U.GetStringInBetween(string(out), "def ", `(`)
 	if err != nil {
 		correctFuncName = false
@@ -239,6 +218,38 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		correctFuncName = pyfunc == DBQuest.FunctionName
 	}
 
+	// iterates thru test cases, runs it and then reverts
+	for _, test := range DBQuest.Tests {
+		err = AddTestCase(file, test.Arguments)
+		if err != nil {
+			for _ = range DBQuest.Tests {
+				Exec = append(Exec, "")
+				Succeed = append(Succeed, false)
+			}
+			return Ret{
+				NameCorrect: correctFuncName,
+				Output:      Exec,
+				Pass:        Succeed,
+				Constraint:  passConstraint,
+			}
+		} else {
+			validate := test.Output
+			output, trySuccess := RunCode(file, validate)
+
+			// To Print out stuff uncomment lines below
+			// g, err := os.ReadFile(file)
+			// U.Check(err)
+			// fmt.Println(string(g))
+
+			Exec = append(Exec, output)
+			Succeed = append(Succeed, trySuccess)
+
+			// Reverts File back to what user submitted
+			os.WriteFile(file, f, 0644)
+		}
+	}
+
+	U.Check(err)
 	RemovePyFile(file)
 
 	return Ret{
