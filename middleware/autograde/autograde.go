@@ -193,25 +193,18 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 
 	// preprocesses code to remove both single line and multiline comments before file is created
 	processedCode := CommentPreprocessing(q.Code)
-	// fmt.Printf("pre:\n----------\n%s\n----------\n", q.Code)
-	// fmt.Printf("post:\n----------\n%s\n----------\n", processedCode)
-	// fmt.Fprintf(w, "%v\n", processedCode)
 
 	// creates temp py file
 	file := CreatePyFile(processedCode, q.Qid)
 
 	// find constraint here
-	// passConstraint := findConstraint(file, q.Constraint)
 	passConstraint := findConstraint(file, DBQuest.Constraint)
 
 	// creates an 'anchor' so that file can be re-written back to this version
 	f, err := os.ReadFile(file)
 	U.Check(err)
-	// fmt.Printf("File looks like:\n-----\n%s\n-----\n", string(f))
 
-	out := string(f)
-	// fmt.Println(out)
-	pyfunc, err := U.GetStringInBetween(string(out), "def ", `(`)
+	pyfunc, err := U.GetStringInBetween(string(f), "def ", `(`)
 	if err != nil {
 		correctFuncName = false
 	} else {
@@ -222,10 +215,14 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 	for _, test := range DBQuest.Tests {
 		err = AddTestCase(file, test.Arguments)
 		if err != nil {
-			for _ = range DBQuest.Tests {
+			// if error is found in AddTestCase then
+			// just fill out output and succeed slices with standardized stuff
+			// then remove pyfile and returns Ret
+			for i := 0; i < len(DBQuest.Tests); i++ {
 				Exec = append(Exec, "")
 				Succeed = append(Succeed, false)
 			}
+			RemovePyFile(file)
 			return Ret{
 				NameCorrect: correctFuncName,
 				Output:      Exec,
@@ -249,7 +246,6 @@ func FullGrade(w http.ResponseWriter, q Question) Ret {
 		}
 	}
 
-	U.Check(err)
 	RemovePyFile(file)
 
 	return Ret{
