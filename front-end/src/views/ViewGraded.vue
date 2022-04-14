@@ -4,28 +4,52 @@
         <h1>{{ exam.name }} (ID: {{ exam.id }})</h1>
         <h1>Score: {{ earnedPoints }}/{{ totalPoints }}</h1>
 
+        <!-- Minimap for questions -->
+        <div class="minimap">
+            <h3>Questions: </h3>
+            <ol class="minimap-inner">
+                <li :key="question.id" 
+                    v-for="(question, i) in questions">
+                    <a href="" 
+                       v-if="currentQuestionIndex !== i"
+                       @click.prevent="currentQuestionIndex = i">
+                       {{ question.title }}
+                    </a>
+                    <span v-else>{{ question.title }}</span>
+                    ({{ question.points }})
+                </li>
+            </ol>
+        </div>
+
         <div :key="question.id" v-for="(question, i) in questions">
+            <div v-if="i == currentQuestionIndex">
+                <!-- Question info -->
+                <QuestionDescription :question="question" :number="i + 1"/>
 
-            <!-- Question info -->
-            <QuestionDescription :question="question" :number="i + 1"/>
+                <!-- Student answer and point selector -->
+                <div class="two-column-container">
+                    <!-- Students answer -->
+                    <div class="single-column-container">
+                        <AnswerBox class="single-column-item" 
+                                   disabled 
+                                   :question="studentsAnswer(question.id)"/>
+                    </div>
 
-            <!-- Student answer and point selector -->
-            <div class="two-column-container">
-                <!-- Students answer -->
-                <div class="single-column-container">
-                    <AnswerBox class="single-column-item" 
-                               disabled 
-                               :content="studentsAnswer(question.id).code"/>
+                    <!-- Point distribution table -->
+                    <div class="single-column-container">
+                        <PointTable disabled class="single-column-item" :question="question"/>
+                        <CommentBox disabled class="single-column-item" :question="question"/>
+                    </div>
                 </div>
-
-                <!-- Point distribution table -->
-                <div class="single-column-container">
-                    <PointTable disabled class="single-column-item" :question="question"/>
-                    <CommentBox disabled class="single-column-item" :question="question"/>
-                </div>
-
             </div>
         </div>
+
+        <!-- Navigation buttons -->
+        <div v-if="questions.length > 1">
+            <button @click="onPrev" :disabled="navLeftDisabled">Previous</button>
+            <button @click="onNext" :disabled="navRightDisabled">Next</button>
+        </div>
+
     </div>
 </template>
 
@@ -63,9 +87,25 @@ export default {
             loaded: false,
             totalPoints: 0,
             earnedPoints: 0,
+
+            currentQuestionIndex: 0,
         };
     },
+    computed: {
+        navLeftDisabled() {
+            return this.currentQuestionIndex === 0;
+        },
+        navRightDisabled() {
+            return this.currentQuestionIndex === this.questions.length - 1
+        },
+    },
     methods: {
+        onNext() {
+            this.currentQuestionIndex++;
+        },
+        onPrev() {
+            this.currentQuestionIndex--;
+        },
         studentsAnswer(qid) {
             const answer = this.studentExamAnswers.find(a => a.questionid === qid);
             return answer;
@@ -89,9 +129,17 @@ export default {
                 qTest.pass = sTest.pass;
                 qTest.studentoutput = sTest.studentoutput;
             }
+
+            // Attach max points for questions
+            const testsCount = question.tests.length;
+            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+            for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
+                qTest.maxpoints = maxPoints;
+
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
+            question.constraintmet = studentsAnswer.constraintmet;
             question.comment = studentsAnswer.comment;
         }
 

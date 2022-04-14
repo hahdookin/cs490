@@ -4,6 +4,7 @@
 
     <!-- Minimap for questions -->
     <div class="minimap">
+        <h3>Questions: </h3>
         <ol class="minimap-inner">
             <li :key="question.id" 
                 v-for="(question, i) in questions">
@@ -166,15 +167,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.minimap {
-    border: 1px solid black;
-    width: 300px;
-    /* position: absolute; */
-    justify-content: right;
-}
-.minimap-inner {
-    text-align: left;
-}
-</style>
