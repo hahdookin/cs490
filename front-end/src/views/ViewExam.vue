@@ -79,7 +79,7 @@ export default {
     },
     methods: {
         /*
-        {namecorrect: bool, output: [], pass: [], runs: bool}
+        {namecorrect: bool, output: [], pass: []}
         */
         async proceedAutoGrade(exam) {
             this.autogradeInProgress = true;

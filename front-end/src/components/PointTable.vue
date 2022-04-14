@@ -6,7 +6,7 @@
             <thead>
                 <th colspan="2">Correct Name?</th>
                 <td :style="{ backgroundColor: passColor(question.namecorrect) }" colspan="1"></td>
-                <td>{{ question.namecorrectpoints }}</td>
+                <td>{{ question.namecorrectpoints }} / 1</td>
                 <td v-if="!disabled">
                 <input type="text" size="4" v-model="question.override">
                 </td>
@@ -16,6 +16,10 @@
             <thead v-if="question.constraint !== 'none'">
                 <th colspan="2">Constraint met?</th>
                 <td :style="{ backgroundColor: passColor(question.constraintmet) }"></td>
+                <td></td>
+                <td v-if="!disabled">
+                <input type="text" size="4" v-model="question.constraint_override">
+                </td>
             </thead>
 
             <!--Labels for tests -->
@@ -32,7 +36,7 @@
                 <td v-html="testStr(test, question.functionname)"></td>
                 <td>{{ test.studentoutput }}</td>
                 <td :style="{ backgroundColor: passColor(test.pass) }"></td>
-                <td>{{ test.points }}</td>
+                <td>{{ test.points }} / {{ test.maxpoints }}</td>
                 <td v-if="!disabled">
                 <input type="text" size="4" v-model="test.override">
                 </td>
@@ -42,7 +46,7 @@
             <tfoot>
                 <tr>
                     <th colspan="3">Total Points: </th>
-                    <td>{{ totalPoints(question) }}</td>
+                    <td>{{ totalPoints(question) }} / {{ question.points }}</td>
                 </tr>
             </tfoot>
         </table>
@@ -52,7 +56,7 @@
 <script>
 export default {
     name: 'PointTable',
-    inject: ['zip'],
+    inject: ['zip', 'formatArg'],
     props: {
         question: Object,
         disabled: {
@@ -61,13 +65,18 @@ export default {
         }
     },
     created() {
-        this.question.override = '';
+        if (this.question.override === null || this.question.override === undefined)
+            this.question.override = '';
+        if (this.question.constraint_override === null || this.question.constraint_override === undefined)
+            this.question.constraint_override = '';
         for (const test of this.question.tests)
-            test.override = '';
+            if (test.override === null || test.override === undefined)
+                test.override = '';
     },
     methods: {
         testStr(test, fname) {
-            return `${fname}(${test.arguments.join(',')}) &#8594; ${test.output}`;
+            const fmtArgs = test.arguments.map(arg => this.formatArg(arg));
+            return `${fname}(${fmtArgs.join(',')}) &#8594; ${test.output}`;
         },
         passColor(bool) {
             return bool ? 'green' : 'red';

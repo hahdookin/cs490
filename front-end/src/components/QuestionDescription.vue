@@ -16,6 +16,7 @@
 <script>
 export default {
     name: 'QuestionDescription',
+    inject: ['formatArg'],
     props: {
         question: Object,
         number: Number
@@ -35,20 +36,28 @@ export default {
             }
         }, 
         testStr(test, fname) {
-            return `${fname}(${test.arguments.join(',')}) -> ${test.output}`;
+            const fmtArgs = test.arguments.map(arg => this.formatArg(arg))
+            return `${fname}(${fmtArgs.join(',')}) -> ${test.output}`;
         },
         highlight(fname, test) {
             let hlargs = [];
-            for (const arg of test.arguments)
-                hlargs.push(this.highlightToken(arg));
+            for (const arg of test.arguments) {
+                if (isNaN(parseInt(arg))) {
+                    // String lol
+                    hlargs.push(this.highlightToken("'" + arg + "'"));
+                } else {
+                    hlargs.push(this.highlightToken(arg));
+                }
+            }
             let res = `<span style="color: var(--hl-function)">${fname}</span>`;
             res += `(${hlargs.join(', ')})`;
             res += ' &#8594; ';
-            res += this.highlightToken(test.output);
+            res += this.highlightToken(this.formatArg(test.output));
             return res;
         },
         highlightClass(s) {
-            if (s.startsWith('"') && s.endsWith('"'))
+            //if (s.startsWith('"') && s.endsWith('"'))
+            if (s.match(/^'.*'$/) || s.match(/^".*"$/))
                 return 'string';
             return isNaN(parseInt(s)) ? 'string' : 'number';
         },
