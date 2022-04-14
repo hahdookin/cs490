@@ -35,11 +35,11 @@ Legend:
 
 <!-- :heavy_check_mark: vs :x: vs :soon: -->
 | Release Version | Completion
-| :-----:  | :-----:
+| :-----:   | :-----:
 | Alpha     | :heavy_check_mark:
 | Beta      | :heavy_check_mark:
-| Release   | :soon:
-
+| Release   | :heavy_check_mark:
+| 'Polish'  | :soon:
 
 ## :books: Resources
 - [Debug your Server](https://ist.njit.edu/debug-your-code)
