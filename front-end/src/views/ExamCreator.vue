@@ -85,6 +85,7 @@
             <ExamCreatorItem v-for="question in examList" 
                              :question="question"
                              class="single-column-item moveable"
+                             draggable
                              @dragstart="dragStart($event, question)"
                              show-points-input/>
 
@@ -102,6 +103,7 @@
 
             <ExamCreatorItem v-for="question in bankList()" 
                              :question="question"
+                             draggable
                              @dragstart="dragStart($event, question)"
                              class="single-column-item moveable"/>
         </div>

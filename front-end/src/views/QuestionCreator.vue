@@ -1,7 +1,7 @@
 <template>
 
     <h3>Question Creator</h3>
-    <div class="two-column-container">
+    <div class="two-column-container" style="max-width: 1000px">
 
         <!-- Question creation form -->
         <div class="single-column-container">
@@ -12,23 +12,58 @@
 
         <!-- Find questions in bank form -->
         <div class="single-column-container">
-            <div class="single-column-item">
-                <div style="display: inline">
-                    <p style="display: inline">Query: </p>
-                    <input @input="onQueryChange" 
-                           type="text" 
-                           v-model="query"
-                           size="10">
+            <form @change="onFilterFormChanged" @submit.prevent>
+                <div class="single-column-item">
+                    <div class="row">
+                        <div class="column">
+                            <h5>Difficulty: </h5>
+                            <div class="filter-selection">
+                                <label>Easy: </label>
+                                <input type="checkbox" v-model="filters.difficulty.easy">
+                                <br>
+                                <label>Medium: </label>
+                                <input type="checkbox" v-model="filters.difficulty.medium">
+                                <br>
+                                <label>Hard: </label>
+                                <input type="checkbox" v-model="filters.difficulty.hard">
+                                <br>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <h5>Category: </h5>
+                            <div class="filter-selection">
+                                <label>For Loops: </label>
+                                <input type="checkbox" v-model="filters.category.forloop">
+                                <br>
+                                <label>While Loops: </label>
+                                <input type="checkbox" v-model="filters.category.whileloop">
+                                <br>
+                                <label>If Statement: </label>
+                                <input type="checkbox" v-model="filters.category.ifstmt">
+                                <br>
+                                <label>Recursion: </label>
+                                <input type="checkbox" v-model="filters.category.recursion">
+                                <br>
+                                <label>Misc: </label>
+                                <input type="checkbox" v-model="filters.category.misc">
+                                <br>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <h5>Keyword: </h5>
+                            <input @input="onFilterFormChanged" 
+                                   type="text" 
+                                   v-model="filters.keyword">
+                        </div>
+                    </div>
                 </div>
-                <!--<button @click="onQueryChange">Submit</button>-->
-            </div>
+            </form>
+
             <!-- Results of query -->
-            <div class="single-column-item"
-                 :key="question.id" 
-                 v-for="question in questions">
-                <p><strong>{{ question.title }}</strong></p>
-                <p>{{ question.desc }}</p>
-            </div>
+            <ExamCreatorItem class="single-column-item" 
+                             :question="question"
+                             v-for="question in displayQuestions"
+                             :key="question.id"/>
         </div>
 
     </div>
@@ -38,23 +73,43 @@
 
 <script>
 import QuestionCreationForm from '../components/QuestionCreationForm';
+import ExamCreatorItem from '../components/ExamCreatorItem.vue';
 
 export default {
     name: 'QuestionCreator',
     components: {
         QuestionCreationForm,
+        ExamCreatorItem
     },
     inject: [
         'postQuestion',
-        'fetchQuestionsLike'
+        'fetchQuestionsLike',
+        'fetchQuestions'
     ],
     data() {
         return {
             errorMessage: '',
             success: false,
 
+            filters: {
+                difficulty: {
+                    easy: false,
+                    medium: false,
+                    hard: false,
+                },
+                category: {
+                    forloop: false,
+                    whileloop: false,
+                    ifstmt: false,
+                    recursion: false,
+                    misc: false,
+                },
+                keyword: '',
+            },
+
             query: '',
             questions: [],
+            displayQuestions: [],
 
             form: {
                 title: '',
@@ -68,6 +123,9 @@ export default {
             }
         }
     },
+    async created() {
+        this.questions = await this.fetchQuestions();
+    },
     methods: {
         setError(msg) {
             this.success = false;
@@ -78,18 +136,34 @@ export default {
             this.success = true;
             this.errorMessage = msg;
         },
-        async onQueryChange() {
-            // When query is empty, don't show anything
-            if (this.query === '')
-                this.questions = [];
-            else {
-                // Catch errors if user entered incorrect regex syntax
-                try {
-                    this.questions = await this.fetchQuestionsLike(encodeURIComponent(this.query));
-                } catch (e) {
-                    this.questions = [];
+        updateResults() {
+            this.displayQuestions = this.questions;
+
+            const filters = this.filters;
+            for (const section in filters) {
+                if (section === 'keyword' && filters.keyword !== '') {
+                    // Apply keyword filter
+                    this.displayQuestions = this.displayQuestions.filter(q => {
+                        const kw = filters.keyword.trim();
+                        try {
+                            const regex = new RegExp(kw, 'i');
+                            return q.desc.match(regex) !== null;
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+                    continue;
                 }
+                // Apply flag filter
+                for (const [key, val] of Object.entries(filters[section]))
+                    if (!val) 
+                        this.displayQuestions = this.displayQuestions.filter( 
+                            q => q[section] !== key
+                        )
             }
+        },
+        onFilterFormChanged() {
+            this.updateResults();
         },
         async onSubmit() {
             if (!this.validateForm())
@@ -98,6 +172,8 @@ export default {
 
             // Post question to DATABASE
             const res = await this.postQuestion(payload);
+
+            this.questions = await this.fetchQuestions();
 
             this.setSuccess(`Successfully created question: ${this.form.title}`);
         },
@@ -156,3 +232,25 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.row {
+    display: flex;
+    justify-content: safe center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.column {
+    flex: 50%;
+    text-align: center;
+}
+.column > input[type="text"]  {
+    width: 75%;
+}
+
+.filter-selection {
+    text-align: right;
+    display: inline-block;
+}
+</style>
