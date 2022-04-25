@@ -16,7 +16,7 @@
             <thead v-if="question.constraint !== 'none'">
                 <th colspan="2">Constraint met?</th>
                 <td :style="{ backgroundColor: passColor(question.constraintmet) }"></td>
-                <td></td>
+                <td>{{ question.constraintmetpoints }} / 5</td>
                 <td v-if="!disabled">
                 <input type="text" size="4" v-model="question.constraint_override">
                 </td>
@@ -84,6 +84,8 @@ export default {
         totalPoints(question) {
             let nc_override = question.override.trim();
             let total = nc_override === '' ? question.namecorrectpoints : Number(nc_override);
+            let constraint_override = question.constraint_override.trim();
+            total += constraint_override === '' ? question.constraintmetpoints : Number(constraint_override);
                              
             for (const test of question.tests) {
                 let test_override = test.override.trim();

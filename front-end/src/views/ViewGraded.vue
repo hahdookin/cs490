@@ -132,7 +132,11 @@ export default {
 
             // Attach max points for questions
             const testsCount = question.tests.length;
-            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+            let pointDist;
+            if (question.constraint !== 'none')
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1 + 5), testsCount);
+            else
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
             for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
                 qTest.maxpoints = maxPoints;
 
@@ -140,6 +144,7 @@ export default {
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.constraintmet = studentsAnswer.constraintmet;
+            question.constraintmetpoints = studentsAnswer.constraintmetpoints;
             question.comment = studentsAnswer.comment;
         }
 
@@ -152,6 +157,7 @@ export default {
                 this.earnedPoints += t.points;
             });
             this.earnedPoints += q.namecorrectpoints;
+            this.earnedPoints += q.constraintmetpoints;
         });
 
         this.loaded = true;

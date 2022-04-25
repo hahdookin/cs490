@@ -158,6 +158,7 @@ export default {
                     totalPoints += t.points;
                 });
                 totalPoints += q.namecorrectpoints;
+                totalPoints += q.constraintmetpoints;
             });
 
             // Validate that override inputs are OK
@@ -169,6 +170,9 @@ export default {
                 let nc_override = question.override.trim();
                 if (nc_override !== '')
                     question.namecorrectpoints = Number(nc_override);
+                let constraint_override = question.constraint_override.trim();
+                if (constraint_override !== '')
+                    question.constraintmetpoints = Number(constraint_override);
                 for (const test of question.tests) {
                     let test_override = test.override.trim();
                     if (test_override !== '')
@@ -183,6 +187,7 @@ export default {
                     sTest.points = qTest.points;
                 }
                 studentsAnswer.namecorrectpoints = q.namecorrectpoints;
+                studentsAnswer.constraintmetpoints = q.constraintmetpoints;
                 studentsAnswer.comment = q.comment;
             }
 
@@ -233,7 +238,11 @@ export default {
                 qTest.override = '';
             }
             const testsCount = question.tests.length;
-            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+            let pointDist;
+            if (question.constraint !== 'none')
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1 + 5), testsCount);
+            else
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
             for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
                 qTest.maxpoints = maxPoints;
 
@@ -241,9 +250,9 @@ export default {
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
-            question.constraintdeduction;
             question.comment = studentsAnswer.comment;
             question.constraintmet = studentsAnswer.constraintmet;
+            question.constraintmetpoints = studentsAnswer.constraintmetpoints;
         }
 
         this.loaded = true;
