@@ -25,7 +25,7 @@
             <!--Labels for tests -->
             <thead>
                 <th>Expected</th>
-                <th>Run</th>
+                <th>Output</th>
                 <th>Pass?</th>
                 <th>Points</th>
                 <th v-if="!disabled">Override</th>
