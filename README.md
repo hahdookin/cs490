@@ -39,7 +39,7 @@ Legend:
 | Alpha     | :heavy_check_mark:
 | Beta      | :heavy_check_mark:
 | Release   | :heavy_check_mark:
-| 'Polish'  | :soon:
+| 'Polish'  | :heavy_check_mark:
 
 ## :books: Resources
 - [Debug your Server](https://ist.njit.edu/debug-your-code)
