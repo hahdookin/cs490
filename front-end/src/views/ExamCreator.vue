@@ -8,7 +8,8 @@
     <!-- Bank filter form -->
     <h4>Bank Filter</h4>
 
-    <form @change="onFilterFormChanged" @submit.prevent>
+    <!--<form @change="onFilterFormChanged" @submit.prevent>-->
+    <form @submit.prevent>
     <div class="row" style="padding-bottom: 5px;border: 1px solid black">
         <div class="column">
             <h5>Difficulty</h5>
@@ -64,6 +65,7 @@
         <div class="column">
             <h5>Keyword Search</h5>
             <input @input="onFilterFormChanged" type="text" v-model="filters.keyword">
+            <button :disabled="this.searching" @click.prevent="onFilterFormChanged" style="margin-top: 30px">Search</button>
         </div>
 
     </div>
@@ -155,6 +157,8 @@ export default {
 
             errorMessage: '',
             success: false,
+
+            searching: false
         };
     },
     async created() {
@@ -190,6 +194,7 @@ export default {
                             q => q[section] !== key
                         )
             }
+            this.searching = false;
         },
         dragStart(event, question) {
             event.dataTransfer.dropEffect = 'move';
@@ -211,7 +216,8 @@ export default {
             this.errorMessage = msg;
         },
         onFilterFormChanged() {
-            this.updateResults();
+            this.searching = true;
+            setTimeout(this.updateResults, 600 + Math.floor(Math.random() * 300));
         },
         async onSubmit() {
             let examQuestions = this.questions.filter(q => q.list === examColumn);

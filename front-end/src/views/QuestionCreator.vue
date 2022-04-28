@@ -12,7 +12,8 @@
 
         <!-- Find questions in bank form -->
         <div class="single-column-container">
-            <form @change="onFilterFormChanged" @submit.prevent>
+            <!--<form @change="onFilterFormChanged" @submit.prevent>-->
+            <form @submit.prevent>
                 <div class="single-column-item">
                     <div class="row">
                         <div class="column">
@@ -54,6 +55,7 @@
                             <input @input="onFilterFormChanged" 
                                    type="text" 
                                    v-model="filters.keyword">
+                            <button :disabled="this.searching" @click.prevent="onFilterFormChanged" style="margin-top: 30px">Search</button>
                         </div>
                     </div>
                 </div>
@@ -90,6 +92,7 @@ export default {
         return {
             errorMessage: '',
             success: false,
+            searching: false,
 
             filters: {
                 difficulty: {
@@ -161,9 +164,11 @@ export default {
                             q => q[section] !== key
                         )
             }
+            this.searching = false;
         },
         onFilterFormChanged() {
-            this.updateResults();
+            this.searching = true;
+            setTimeout(this.updateResults, 600 + Math.floor(Math.random() * 300));
         },
         async onSubmit() {
             if (!this.validateForm())

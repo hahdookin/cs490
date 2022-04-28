@@ -1,7 +1,7 @@
 <template>
-    <h1>View Graded</h1>
+    <h2>View Graded</h2>
     <div v-if="loaded">
-        <h1>{{ exam.name }} (ID: {{ exam.id }})</h1>
+        <h1>{{ exam.name }}</h1>
         <h1>Score: {{ earnedPoints }}/{{ totalPoints }}</h1>
 
         <!-- Minimap for questions -->
@@ -140,6 +140,7 @@ export default {
             for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
                 qTest.maxpoints = maxPoints;
 
+            question.code = studentsAnswer.code;
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;

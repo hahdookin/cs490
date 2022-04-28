@@ -3,24 +3,24 @@
     <div>
         <table>
             <!-- Namecorrect -->
-            <thead>
-                <th colspan="2">Correct Name?</th>
-                <td :style="{ backgroundColor: passColor(question.namecorrect) }" colspan="1"></td>
-                <td>{{ question.namecorrectpoints }} / 1</td>
-                <td v-if="!disabled">
-                <input type="text" size="4" v-model="question.override">
-                </td>
-            </thead>
+            <!--<thead>-->
+                <!--<th colspan="2">Correct Name?</th>-->
+                <!--<td :style="{ backgroundColor: passColor(question.namecorrect) }" colspan="1"></td>-->
+                <!--<td>{{ question.namecorrectpoints }} / 1</td>-->
+                <!--<td v-if="!disabled">-->
+                <!--<input type="text" size="4" v-model="question.override">-->
+                <!--</td>-->
+            <!--</thead>-->
 
             <!-- Constraint if applicable -->
-            <thead v-if="question.constraint !== 'none'">
-                <th colspan="2">Constraint met?</th>
-                <td :style="{ backgroundColor: passColor(question.constraintmet) }"></td>
-                <td>{{ question.constraintmetpoints }} / 5</td>
-                <td v-if="!disabled">
-                <input type="text" size="4" v-model="question.constraint_override">
-                </td>
-            </thead>
+            <!--<thead v-if="question.constraint !== 'none'">-->
+                <!--<th colspan="2">Constraint met?</th>-->
+                <!--<td :style="{ backgroundColor: passColor(question.constraintmet) }"></td>-->
+                <!--<td>{{ question.constraintmetpoints }} / 5</td>-->
+                <!--<td v-if="!disabled">-->
+                <!--<input type="text" size="4" v-model="question.constraint_override">-->
+                <!--</td>-->
+            <!--</thead>-->
 
             <!--Labels for tests -->
             <thead>
@@ -30,6 +30,26 @@
                 <th>Points</th>
                 <th v-if="!disabled">Override</th>
             </thead>
+
+            <!-- Namecorrect -->
+            <tbody>
+                <td>{{ question.functionname }}</td>
+                <td>{{ studentsFuncName(question.code) }}</td>
+                <td :style="{ backgroundColor: passColor(question.namecorrect) }" colspan="1"></td>
+                <td>{{ question.namecorrectpoints }} / 1</td>
+                <td v-if="!disabled">
+                    <input type="text" size="4" v-model="question.override">
+                </td>
+            </tbody>
+
+            <tbody v-if="question.constraint !== 'none'">
+                <td colspan="2">{{ question.constraint }}</td>
+                <td :style="{ backgroundColor: passColor(question.constraintmet) }"></td>
+                <td>{{ question.constraintmetpoints }} / 5</td>
+                <td v-if="!disabled">
+                    <input type="text" size="4" v-model="question.constraint_override">
+                </td>
+            </tbody>
 
             <!-- Tests and points input -->
             <tbody v-for="test in question.tests">
@@ -65,6 +85,7 @@ export default {
         }
     },
     created() {
+        console.log(this.question.code);
         if (this.question.override === null || this.question.override === undefined)
             this.question.override = '';
         if (this.question.constraint_override === null || this.question.constraint_override === undefined)
@@ -78,14 +99,26 @@ export default {
             const fmtArgs = test.arguments.map(arg => this.formatArg(arg));
             return `${fname}(${fmtArgs.join(',')}) &#8594; ${test.output}`;
         },
+        studentsFuncName(code) {
+            let needle1 = 'def ';
+            let needle2 = '(';
+            let i1 = code.indexOf(needle1);
+            let i2 = code.indexOf(needle2);
+            if (i1 < 0 || i2 < 0)
+                return '';
+
+            return code.substring(i1 + needle1.length, i2);
+        },
         passColor(bool) {
             return bool ? 'green' : 'red';
         },
         totalPoints(question) {
             let nc_override = question.override.trim();
             let total = nc_override === '' ? question.namecorrectpoints : Number(nc_override);
-            let constraint_override = question.constraint_override.trim();
-            total += constraint_override === '' ? question.constraintmetpoints : Number(constraint_override);
+            if (question.constraint !== 'none') {
+                let constraint_override = question.constraint_override.trim();
+                total += constraint_override === '' ? question.constraintmetpoints : Number(constraint_override);
+            }
                              
             for (const test of question.tests) {
                 let test_override = test.override.trim();

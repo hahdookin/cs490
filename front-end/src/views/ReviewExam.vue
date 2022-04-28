@@ -170,7 +170,7 @@ export default {
                 let nc_override = question.override.trim();
                 if (nc_override !== '')
                     question.namecorrectpoints = Number(nc_override);
-                let constraint_override = question.constraint_override.trim();
+                let constraint_override = question.constraint_override.trim(); 
                 if (constraint_override !== '')
                     question.constraintmetpoints = Number(constraint_override);
                 for (const test of question.tests) {
@@ -247,6 +247,7 @@ export default {
                 qTest.maxpoints = maxPoints;
 
             // Attach extra info to the question object (used in point table)
+            question.code = studentsAnswer.code;
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;

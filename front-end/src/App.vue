@@ -108,9 +108,10 @@ export default {
 .two-column-container {
     display: flex;
     justify-content: safe center;
-    width: 75%;
+    width: 90%;
     margin: 0 auto;
-    max-width: 800px;
+    /* max-width: 800px; */
+    max-width: 65%;
 }
 /* Single column */
 .single-column-container {
@@ -141,8 +142,8 @@ textarea:disabled {
     width: 300px;
     /* position: absolute; */
     /* position: sticky; */
-    margin-right: 15%;
-    margin-left: auto;
+    /* margin-right: 15%; */
+    margin-left: 15%;
 }
 .minimap-inner {
     text-align: left;
