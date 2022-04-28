@@ -1,7 +1,7 @@
 <template>
     <div @dragstart="onDragStart($event)" 
          @dragend="onDragEnd($event)" 
-         draggable="true">
+         :draggable="draggable">
 
         <div>
             <h3 style="display: inline">{{ question.title }}</h3>
@@ -12,7 +12,9 @@
 
         <p>{{ question.desc }}</p>
 
-        <p v-if="question.constraint !== 'none'">{{ question.constraint }}</p>
+        <p v-if="question.constraint !== 'none'">
+        <strong>Constraint:</strong> {{ constraintFmt(question.constraint) }}
+        </p>
 
         <!--<div class="test-cases">-->
             <!--<code v-for="test in question.tests" v-html="highlight(question.functionname, test)"></code>-->
@@ -31,9 +33,29 @@ export default {
     name: 'ExamCreatorItem',
     props: {
         question: Object,
-        showPointsInput: Boolean
+        showPointsInput: {
+            type: Boolean,
+            default: false,
+        },
+        draggable: {
+            type: Boolean,
+            default: false
+        }
     },
     methods: {
+        // Map the stored constants to nice text
+        constraintFmt(constraint) {
+            switch (constraint.toLowerCase()) {
+                case 'forloop':
+                    return 'For Loop';
+                case 'whileloop':
+                    return 'While Loop';
+                case 'recursion':
+                    return 'Recursion';
+                default:
+                    return constraint;
+            }
+        }, 
         onDragStart(e) {
             setTimeout(() => e.target.classList.add('dragging'), 0);
         },

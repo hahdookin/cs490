@@ -79,7 +79,7 @@ export default {
     },
     methods: {
         /*
-        {namecorrect: bool, output: [], pass: [], runs: bool}
+        {namecorrect: bool, output: [], pass: []}
         */
         async proceedAutoGrade(exam) {
             this.autogradeInProgress = true;
@@ -100,6 +100,7 @@ export default {
                 answer.namecorrect = res.namecorrect;
                 answer.namecorrectpoints = +res.namecorrect; // 1 if true, 0 otherwise
                 answer.constraintmet = res.constraint;
+                answer.constraintmetpoints = +res.constraint * 5; // 5 points
                 for (let i = 0; i < answer.tests.length; i++) {
                     answer.tests[i].pass = res.pass[i];
                     answer.tests[i].studentoutput = res.output[i];

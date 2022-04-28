@@ -15,14 +15,21 @@ export default {
             return str.join("&");
         }
 
+        const formatArg = function(arg) {
+            if (isNaN(parseInt(arg)))
+                return `'${arg}'`;
+            return arg;
+        }
+        app.provide('formatArg', formatArg);
+
         const postToAutograder = async function(qid, code) {
-            const res = await fetch(`${middle}/cringe`, {
+            const res = await fetch(`${middle}/actual`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/json'
                 },
-                body: serialize({
-                    qid: qid,
+                body: JSON.stringify({
+                    qid: "" + qid, // Ensure qid is a string
                     code: code
                 })
                 // body: JSON.stringify({

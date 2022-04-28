@@ -108,9 +108,10 @@ export default {
 .two-column-container {
     display: flex;
     justify-content: safe center;
-    width: 75%;
+    width: 90%;
     margin: 0 auto;
-    max-width: 800px;
+    /* max-width: 800px; */
+    max-width: 65%;
 }
 /* Single column */
 .single-column-container {
@@ -127,5 +128,25 @@ export default {
     border: 1px solid blue;
 }
 
+/* Input elements are often reused and disabled. */
+/* Although this introduces unintuitive UX, */
+/* leave disabled input text black so its */
+/* easier to read. */
+textarea:disabled {
+    color: black;
+}
+
+/* Minimap */
+.minimap {
+    border: 1px solid black;
+    width: 300px;
+    /* position: absolute; */
+    /* position: sticky; */
+    /* margin-right: 15%; */
+    margin-left: 15%;
+}
+.minimap-inner {
+    text-align: left;
+}
 
 </style>

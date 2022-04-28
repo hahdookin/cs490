@@ -1,6 +1,6 @@
 <template>
     <!-- Title -->
-    <label for="title">Title</label>
+    <label for="title">Title: </label>
     <input v-model="form.title"
            type="text" 
            name="title" 
@@ -15,26 +15,26 @@
               required></textarea><br>
 
     <!-- Category -->
-    <label for="category">Category</label>
+    <label for="category">Category: </label>
     <select v-model="form.category" name="category" required>
         <option value="misc">Miscellaneous</option>
-        <option value="for">For Loops</option>
-        <option value="while">While Loops</option>
+        <option value="forloop">For Loops</option>
+        <option value="whileloop">While Loops</option>
         <option value="recursion">Recursion</option>
-        <option value="if">If Statements</option>
+        <option value="ifstmt">If Statements</option>
     </select><br>
 
     <!-- Constraint -->
-    <label for="constraint">Constraint</label>
+    <label for="constraint">Constraint: </label>
     <select v-model="form.constraint" name="constraint">
         <option value="none">None</option>
-        <option value="for">For Loops</option>
-        <option value="while">While Loops</option>
+        <option value="forloop">For Loops</option>
+        <option value="whileloop">While Loops</option>
         <option value="recursion">Recursion</option>
     </select><br>
 
     <!-- Difficulty -->
-    <label for="difficulty">Difficulty</label>
+    <label for="difficulty">Difficulty: </label>
     <select v-model="form.difficulty" name="difficulty" required>
         <option value="easy">Easy</option>
         <option value="medium">Medium</option>
@@ -42,7 +42,7 @@
     </select><br>
 
     <!-- Function Name -->
-    <label for="functionname">Function Name</label>
+    <label for="functionname">Function Name: </label>
     <input pattern="[A-Za-z_][A-Za-z0-9_]*" 
            v-model="form.functionname" 
            type="text" 
@@ -56,27 +56,30 @@
                v-for="(param, index) in form.parameters"
                v-model="form.parameters[index]"
                type="text" 
-               :placeholder="`param${index}`"
+               :placeholder="`param${index + 1}`"
                size="10"
                required>
+    </div>
     <button @click.prevent="addParam">Add Parameter</button>
     <button @click.prevent="removeParam">Remove Parameter</button>
-    </div>
 
-    <label>Test Cases: </label>
+    <!-- Test cases -->
     <div>
-        <div :key="index"
-             v-for="(test, index) in form.tests">
-            <label>Test {{ index }}: </label>
-            <input :key="idx"
-                   v-for="(param, idx) in form.parameters"
-                   v-model="test.arguments[idx]"
+        <label>Test Cases: </label>
+    </div>
+    <div>
+        <div :key="tIdx"
+             v-for="(test, tIdx) in form.tests">
+            <label>Test {{ tIdx + 1 }}: </label>
+            <input :key="tIdx"
+                   v-for="(param, pIdx) in form.parameters"
+                   v-model="test.arguments[pIdx]"
                    type="text"
-                   :placeholder="`arg${idx}`"
+                   :placeholder="`arg${pIdx + 1}`"
                    size="10"
                    required>
             <input type="text"
-                   placeholder="output"
+                   :placeholder="`output${tIdx + 1}`"
                    v-model="test.output"
                    size="10"
                    required>
@@ -123,10 +126,12 @@ export default {
             });
         },
         addTest() {
-            this.form.tests.push({
-                arguments: [],
-                output: '',
-            });
+            if (this.form.tests.length < 5) {
+                this.form.tests.push({
+                    arguments: [],
+                    output: '',
+                });
+            }
         },
         removeTest() {
             this.form.tests.pop();

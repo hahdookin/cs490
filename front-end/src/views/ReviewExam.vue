@@ -3,8 +3,26 @@
     <div v-if="loaded">
         <h1>{{ exam.name }} (ID: {{ exam.id }})</h1>
 
+        <!-- Minimap for questions -->
+        <div class="minimap">
+            <h3>Questions: </h3>
+            <ol class="minimap-inner">
+                <li :key="question.id" 
+                    v-for="(question, i) in questions">
+                    <a href="" 
+                       v-if="currentQuestionIndex !== i"
+                       @click.prevent="currentQuestionIndex = i">
+                       {{ question.title }}
+                    </a>
+                    <span v-else>{{ question.title }}</span>
+                    ({{ question.points }})
+                </li>
+            </ol>
+        </div>
+
         <div :key="question.id" v-for="(question, i) in questions">
 
+        <div v-if="i == currentQuestionIndex">
             <!-- Question info -->
             <QuestionDescription :question="question" :number="i + 1"/>
 
@@ -14,7 +32,7 @@
                 <!-- Students answer -->
                 <div class="single-column-container">
                     <AnswerBox class="single-column-item" 
-                               :disabled="true" 
+                               disabled 
                                :question="studentsAnswer(question.id)"/>
                 </div>
 
@@ -25,7 +43,16 @@
                 </div>
             </div>
         </div>
+        </div>
+
     </div>
+
+    <!-- Navigation buttons -->
+    <div v-if="questions.length > 1">
+        <button @click="onPrev" :disabled="navLeftDisabled">Previous</button>
+        <button @click="onNext" :disabled="navRightDisabled">Next</button>
+    </div>
+
     <button @click="onSubmit">Finalize Grades</button>
     <p :style="{ color: success ? 'green' : 'red' }">{{ errorMessage }}</p>
 </template>
@@ -65,11 +92,27 @@ export default {
             questions: [],
             loaded: false,
 
+            currentQuestionIndex: 0,
+
             errorMessage: '',
             success: false,
         };
     },
+    computed: {
+        navLeftDisabled() {
+            return this.currentQuestionIndex === 0;
+        },
+        navRightDisabled() {
+            return this.currentQuestionIndex === this.questions.length - 1
+        },
+    },
     methods: {
+        onNext() {
+            this.currentQuestionIndex++;
+        },
+        onPrev() {
+            this.currentQuestionIndex--;
+        },
         setError(msg) {
             this.success = false;
             this.errorMessage = msg;
@@ -85,6 +128,12 @@ export default {
                 let nc_override = question.override.trim();
                 if (nc_override !== '') {
                     if (!nc_override.match(/[0-9]+/g))
+                        return this.setError('Illegal format in override input');
+                    // TODO: Check if input is in range
+                }
+                let constraint_override = question.constraint_override.trim();
+                if (constraint_override !== '') {
+                    if (!constraint_override.match(/[0-9]+/g))
                         return this.setError('Illegal format in override input');
                     // TODO: Check if input is in range
                 }
@@ -109,6 +158,7 @@ export default {
                     totalPoints += t.points;
                 });
                 totalPoints += q.namecorrectpoints;
+                totalPoints += q.constraintmetpoints;
             });
 
             // Validate that override inputs are OK
@@ -120,15 +170,15 @@ export default {
                 let nc_override = question.override.trim();
                 if (nc_override !== '')
                     question.namecorrectpoints = Number(nc_override);
+                let constraint_override = question.constraint_override.trim(); 
+                if (constraint_override !== '')
+                    question.constraintmetpoints = Number(constraint_override);
                 for (const test of question.tests) {
                     let test_override = test.override.trim();
                     if (test_override !== '')
                         test.points = Number(test_override)
                 }
             }
-
-            console.log(this.questions);
-            return;
 
             // Update studentexamanswer points amount and the comment
             for (const q of this.questions) {
@@ -137,6 +187,7 @@ export default {
                     sTest.points = qTest.points;
                 }
                 studentsAnswer.namecorrectpoints = q.namecorrectpoints;
+                studentsAnswer.constraintmetpoints = q.constraintmetpoints;
                 studentsAnswer.comment = q.comment;
             }
 
@@ -177,22 +228,32 @@ export default {
         // or not they passed to the questions test (for rendering)
         for (const question of this.questions) {
             const studentsAnswer = this.studentsAnswer(question.id);
+            question.override = '';
+            question.constraint_override = '';
             for (const [qTest, sTest] of this.zip(question.tests, studentsAnswer.tests)) {
                 qTest.points = sTest.points;
                 qTest.pass = sTest.pass;
                 qTest.studentoutput = sTest.studentoutput;
+                
+                qTest.override = '';
             }
             const testsCount = question.tests.length;
-            const pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+            let pointDist;
+            if (question.constraint !== 'none')
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1 + 5), testsCount);
+            else
+                pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
             for (const [qTest, maxPoints] of this.zip(question.tests, pointDist))
                 qTest.maxpoints = maxPoints;
 
             // Attach extra info to the question object (used in point table)
+            question.code = studentsAnswer.code;
             question.runs = studentsAnswer.runs;
             question.namecorrect = studentsAnswer.namecorrect;
             question.namecorrectpoints = studentsAnswer.namecorrectpoints;
             question.comment = studentsAnswer.comment;
             question.constraintmet = studentsAnswer.constraintmet;
+            question.constraintmetpoints = studentsAnswer.constraintmetpoints;
         }
 
         this.loaded = true;

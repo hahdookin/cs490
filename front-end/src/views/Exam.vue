@@ -4,6 +4,7 @@
 
     <!-- Minimap for questions -->
     <div class="minimap">
+        <h3>Questions: </h3>
         <ol class="minimap-inner">
             <li :key="question.id" 
                 v-for="(question, i) in questions">
@@ -103,8 +104,14 @@ export default {
                 const testsPayload = [];
                 const testsCount = question.tests.length;
                 const points = question.points;
+
                 // Subtract 1 point for the correct fname
-                const pointDist = this.split(points - (points === 0 ? 0 : 1), testsCount);
+                let pointDist;
+                if (question.constraint !== 'none')
+                    pointDist = this.split(question.points - (question.points === 0 ? 0 : 1 + 5), testsCount);
+                else
+                    pointDist = this.split(question.points - (question.points === 0 ? 0 : 1), testsCount);
+
                 for (const [test, p] of this.zip(question.tests, pointDist)) {
                     testsPayload.push({
                         pass: false,
@@ -119,6 +126,7 @@ export default {
                     namecorrect: false,
                     namecorrectpoints: 0,
                     constraintmet: false,
+                    constraintmetpoints: 0,
                     code: question.code,
                     tests: testsPayload,
                     comment: '',
@@ -166,15 +174,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.minimap {
-    border: 1px solid black;
-    width: 300px;
-    /* position: absolute; */
-    justify-content: right;
-}
-.minimap-inner {
-    text-align: left;
-}
-</style>
