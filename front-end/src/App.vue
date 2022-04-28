@@ -4,8 +4,8 @@
             @user-logged-out="handleUserLogout"
             title="Exam Central"/>
 
-    <button @click="janeLogin">Jane</button>
-    <button @click="johnLogin">John</button>
+    <!--<button @click="janeLogin">Jane</button>-->
+    <!--<button @click="johnLogin">John</button>-->
 
     <div v-if="userIsLoggedIn">
         <router-view></router-view>
